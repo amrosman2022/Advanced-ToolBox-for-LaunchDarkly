@@ -14,4 +14,10 @@ Database is SaaS CRDB instance<br>
 "Python3 es_main.py" is the entry point for the backend<br>
 "http://localhost:8080/index.html" is the entry point for the front end<br>
 
+<H2>Notes</H2><br>
+<UL>
+  <LI>the first time you create the user profile it will create the settings file on the python App root directory </LI>
+  <LI>the Settings file is encryped using a python Library</LI>
+  <LI>please make sure you have installed locally (PIP3 ....) all the python libraries used in the backend</LI> 
+</UL>
 
