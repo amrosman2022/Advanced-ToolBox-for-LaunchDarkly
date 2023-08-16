@@ -1,0 +1,140 @@
+/* style.css */
+
+
+
+/*  used earlier for collapsing table rows */
+.row-collapse {
+    padding: 5px 5px;
+    line-height: 40px;
+    white-space: nowrap;
+    overflow: hidden;
+    transition-duration: .75s;
+  }
+  .row-expand td, tr {
+    line-height: 100%;
+    transition-duration: .75s;
+  }
+
+/* Split ul into columns */
+ul li
+{
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: 10px;
+    line-height:10px;
+    height:auto;
+    text-overflow:clip;
+    
+}
+.divJSON {
+    position: relative;
+    height: 50px;
+    box-shadow: 5px 5px 0px 0 rgba(178, 171, 171, 0.457);
+    border-radius: 10px;
+    border-width: 1px;
+    border-style: dotted;
+    border-color: #aab0b4;
+    padding: 10px;
+    overflow-y: scroll;
+    overflow-x:hidden ;
+}
+/* -----------------------------------------------------------*/
+
+
+/* -----------------------------------------------------------*/
+/* --------------------- Used for Pop-up ---------------------*/
+/* --- the top right expand button on each row of the table --*/
+/* -----------------------------------------------------------*/
+.rightCircle  
+{
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #c4c8cc;
+    top: 0px;
+    right: 0px;
+    display: flex;
+        align-content: center;
+        justify-content: center;
+        align-items: center;
+}
+
+
+/* The Modal Pop-up window (background) */
+.modal3 {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 50px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* 50% width */
+    height: 100%; /* 50% height */
+    overflow:hidden; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+  
+  /* Modal Content */
+  .modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 20px;
+    width: 50%;
+    height: 70%;
+    align-self: center;
+    overflow: scroll;
+  }
+  
+  /* The Close Button */
+  .close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .close:hover,
+  .close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+  }
+/* -----------------------------------------------------------*/
+
+
+
+
+
+  .bluetable 
+  {
+    border-collapse: collapse;
+    width:100%;
+  }
+  .bluetable th, td {
+    padding: 6px 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    text-overflow: ellipsis;
+}
+.bluetable th {
+    background-color: #dbdbdb;
+    font-weight: bold;
+    color: #333;
+}
+  
+  /* Style alternating rows */
+.table-with-oddeven tr:nth-child(even) {
+    background-color: #c1ced3;
+}
+/* Hover effect on rows */
+.table-with-oddeven tr:hover {
+    background-color: #d7e2ed;
+}
+/* Add some padding to the first column */
+.table-with-oddeven td:first-child {
+    padding-left: 20px;
+}
+

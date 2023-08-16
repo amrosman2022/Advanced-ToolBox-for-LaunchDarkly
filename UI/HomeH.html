@@ -1,0 +1,458 @@
+
+<!DOCTYPE html>
+<html lang="en" class="light-style layout-footer-fixed layout-menu-collapsed" dir="ltr" data-theme="theme-default"
+  data-assets-path="./assets/" data-template="vertical-menu-template-starter">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.5, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
+
+  <title>LD AdvSrch</title>
+
+  <meta name="description" content="" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="./assets/img/favicon/favicon.ico" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+    rel="stylesheet" />
+
+  <!-- Icons. Uncomment required icon fonts -->
+  <link rel="stylesheet" href="./assets/vendor/fonts/boxicons.css" />
+  
+  <link rel="stylesheet" href="./assets/vendor/fonts/fontawesome.css" />
+  <!-- <link rel="stylesheet" href="./assets/vendor/fonts/flag-icons.css" /> -->
+
+  <!-- Core CSS -->
+  <link rel="stylesheet" href="./assets/vendor/css/core.css" />
+  <link rel="stylesheet" href="./assets/vendor/css/theme-default.css" />
+  <link rel="stylesheet" href="./assets/css/demo.css" />
+
+  <!-- Vendors CSS -->
+  <link rel="stylesheet" href="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+
+  <!-- Helpers -->
+  <script src="./assets/vendor/js/helpers.js"></script>
+
+  
+  <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+  <script src="./assets/js/config.js"></script>
+
+</head>
+
+<body onload="isLoggedIn();">
+
+<!-- Layout wrapper -->
+<div class="layout-wrapper layout-content-navbar">
+
+  <!-- Layout container -->
+  <div class="layout-container">
+
+    <!-- Menu -->
+    <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+      <div class="app-brand demo">
+        <a href="HomeH.html" class="app-brand-link">
+          <span class="app-brand-logo demo">
+            <img src="./assets/img/branding/logo.png" class="h-auto" width="40px" alt="logo">
+          </span>
+          <span class="app-brand-text demo menu-text fw-bold ms-2">Advanced Search
+            <br />
+            <span class="fs-tiny fw-medium opacity-25">for LaunchDarkly</span>
+          </span>
+        </a>
+
+        <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
+          <i class="bx bx-chevron-left bx-sm align-middle"></i>
+        </a>
+      </div>
+
+      <div class="menu-inner-shadow"></div>
+
+      <ul class="menu-inner py-1">
+        <!-- Page -->
+        <li class="menu-item active">
+          <a href="HomeH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-home-circle"></i>
+            <div data-i18n="Email">Home</div>
+          </a>
+        </li>
+
+        <li class="menu-header small text-uppercase">
+          <span class="menu-header-text">Search</span>
+        </li>
+
+        <li class="menu-item">
+          <a href="ProjectsH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Projects</div>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="EnvironmentsH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Environments</div>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="FlagsH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Feature Flags</div>
+          </a>
+        </li>
+
+        <li class="menu-header small text-uppercase">
+          <span class="menu-header-text">Admin</span>
+        </li>
+        <li class="menu-item">
+          <a href="RefreshdbH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Refresh CRDB</div>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="SettingsH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Settings</div>
+          </a>
+        </li>
+        <li class="menu-header small text-uppercase">
+          <span class="menu-header-text">Misc.</span>
+        </li>
+        <li class="menu-item">
+          <a href="SourcecodeH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Source Code</div>
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <!--/ Menu -->
+
+    <!-- Layout page -->
+    <div class="layout-page">
+
+      <!-- Navbar -->
+      <nav
+        class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+        id="layout-navbar">
+
+        <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+          <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+            <i class="bx bx-menu bx-sm"></i>
+          </a>
+        </div>
+
+        <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+          <div class="">
+            <div class="nav-item d-flex align-items-center">
+              <i class="blockquote">...</i>
+            </div>
+          </div>
+          <ul class="navbar-nav flex-row align-items-center ms-auto">
+            <!-- User -->
+            <li class="nav-item navbar-dropdown dropdown-user dropdown">
+              <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+                <div class="avatar avatar-online">
+                  <img src="./assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
+                </div>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <div class="d-flex">
+                      <div class="flex-shrink-0 me-3">
+                        <div class="avatar avatar-online">
+                          <img src="./assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
+                        </div>
+                      </div>
+                      <div class="flex-grow-1">
+                        <span id="USERID_H" class="fw-semibold d-block">John Doe</span>
+                        <small class="text-muted">Admin</small>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <div class="dropdown-divider"></div>
+                </li>
+                
+                <li>
+                  <a class="dropdown-item" href="SettingsH.html">
+                    <i class="bx bx-cog me-2"></i>
+                    <span class="align-middle">Settings</span>
+                  </a>
+                </li>
+                
+                <li>
+                  <div class="dropdown-divider"></div>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="index.html">
+                    <i class="bx bx-power-off me-2"></i>
+                    <span class="align-middle">Log Out</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <!--/ User -->
+
+          </ul>
+        </div>
+      </nav>
+      <!--/ Navbar -->
+
+      <!-- Content wrapper -->
+      <div class="content-wrapper">
+
+        <!-- Content -->
+        <div class="container-xxl flex-grow-1 container-p-y">
+
+          <!-- Information with the bearded guy-->
+          <div class="col-lg-12 mb-4 order-0">
+            <div class="card">
+              <div class="d-flex align-items-end row">
+                <div class="col-sm-7">
+                  <div class="card-body">
+                    <h5 class="card-title text-primary">Advanced Search for LaunchDarkly</h5>
+                    <p class="mb-4">
+                      This tool loads your LaunchDarkly Projects, Environments, and Flags into a local DB to search for information accross all the elements loaded from LD.
+                    </p>
+                    <a href="https://app.launchdarkly.com/" class="btn btn-sm btn-outline-primary">LaunchDarkly Environment</a>
+                  </div>
+                </div>
+                <div class="col-sm-5 text-center text-sm-left">
+                  <div class="card-body pb-0 px-0 px-md-4">
+                    <img src="./assets/img/illustrations/man-with-laptop-light.png" height="140" alt="View Badge User" data-app-dark-img="illustrations/man-with-laptop-dark.png" data-app-light-img="illustrations/man-with-laptop-light.png">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Endof/Information with the bearded guy-->
+
+          <!-- 3 boxex with the totals-->
+            <!-- BOX Projects-->
+            <div class="row">
+              <div class="col-md-6 col-lg-3 col-xl-4 order-0 mb-4">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="card-title d-flex align-items-start justify-content-between">
+                      <div class="avatar flex-shrink-0">
+                        <i class="bx bx-grid bx-md"></i>
+                      </div>
+                    </div>
+                    <span class="fw-semibold d-block mb-1">Projects</span>
+                    <h3 class="card-title mb-2" id="top_projects">0 Projects</h3>
+                  </div>
+                </div>
+              </div>
+
+              <!-- BOX Env -->
+              <div class="col-md-6 col-lg-3 col-xl-4 order-1 mb-4">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="card-title d-flex align-items-start justify-content-between">
+                      <div class="avatar flex-shrink-0">
+                        <i class="bx bx-unite bx-md"></i>
+                      </div>
+                    </div>
+                    <span>Environments</span>
+                    <h3 class="card-title text-nowrap mb-1" id="top_env">0 Environments</h3>
+                  </div>
+                </div>
+              </div>
+
+              <!-- BOX Flags-->
+              <div class="col-md-6 col-lg-3 col-xl-4 order-2 mb-4">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="card-title d-flex align-items-start justify-content-between">
+                      <div class="avatar flex-shrink-0">
+                        <i class="bx bx-flag bx-md"></i>
+                      </div>
+                    </div>
+                    <span>Feature Flags</span>
+                    <h3 class="card-title text-nowrap mb-1" id="top_flags">0 Flags</h3>
+                  </div>
+                </div>
+              </div>
+
+
+            </div>
+          <!-- Endof/3 boxex with the totals-->
+
+        </div>
+        <!--/ Content -->
+
+        <!-- Messages DIV-->
+        <div class="alert alert-primary d-flex" role="alert" id="divStatus" style="visibility: visible;">
+          <span class="badge badge-center rounded-pill bg-primary border-label-primary p-3 me-2"><i class="bx bx-command fs-6"></i></span>
+          <div class="d-flex flex-column ps-1">
+            <span id="divStatusText"></span>
+          </div>
+        </div>
+        <div class="alert alert-danger" role="alert"  width="100%" height="15px" style="visibility: hidden;"><B id="divStatusText"></B></div>
+        <!-- //Messages DIV-->
+
+        <!-- Footer -->
+        <footer class="content-footer footer bg-footer-theme">
+          
+          <div
+            class="container-xxl d-flex flex-wrap justify-content-between align-items-center py-2 flex-md-row flex-column">
+
+            <div class="mb-2 mb-md-0">
+              <script>
+                document.write(new Date().getFullYear());
+              </script>
+              <a href="#" target="_blank" class="footer-link fw-bolder">ThemeSelection</a>
+            </div>
+            <div>
+              <a href="https://themeselection.com/documentation" target="_blank"
+                class="footer-link me-4">Documentation</a>
+            </div>
+          </div>
+        </footer>
+        <!--/ Footer -->
+
+        <!-- Content area backdrop -->
+        <div class="content-backdrop fade"></div>
+      </div>
+      <!--/ Content wrapper -->
+
+    </div>
+    <!-- Layout page -->
+
+  </div>
+  <!-- Layout container -->
+
+  <!-- Overlay -->
+  <div class="layout-overlay layout-menu-toggle"></div>
+
+  <!-- Drag Target Area To SlideIn Menu On Small Screens -->
+  <div class="drag-target"></div>
+</div>
+<!--/ Layout wrapper -->
+
+  <!-- Core JS -->
+  <!-- build:js assets/vendor/js/core.js -->
+  <script src="./assets/vendor/libs/jquery/jquery.js"></script>
+  <script src="./assets/vendor/libs/popper/popper.js"></script>
+  <script src="./assets/vendor/js/bootstrap.js"></script>
+  <script src="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+  <script src="./assets/vendor/libs/hammer/hammer.js"></script>
+  <script src="./assets/vendor/js/menu.js"></script>
+  <!-- endbuild -->
+
+  <!-- Main JS -->
+  <script src="./assets/js/main.js"></script>
+  
+</body>
+
+<!--  ******************************* the home.html page **********************************-->
+<script>
+s_userID = '';
+function func_ShowAlert(s_Message='', b_visibility=false)
+  {
+    if (b_visibility == true)
+    {
+      document.getElementById('divStatus').style.visibility = 'visible';
+      document.getElementById('divStatusText').innerText = s_Message;
+      setTimeout(func_ShowAlert, 3000); // Call hideElement after 3 seconds
+    }
+    else
+    {
+      document.getElementById('divStatus').style.visibility = 'hidden';
+      document.getElementById('divStatusText').innerText = '';
+    }
+    
+  }
+
+  const isLoggedIn = async () => 
+  {
+      try
+      {
+          const response = await fetch('http://localhost:8080/validlogin');
+          const myJson = await response.json(); //extract TEXT from the http response
+          if (JSON.parse(myJson)['success']==true)
+          {
+            console.log('opening index.html');
+            window.open('index.html','_self');
+          }
+          else  // if user is already logged - no action needed
+          {
+            console.log(JSON.parse(myJson)['message']);
+            s_userID = JSON.parse(myJson)['userid'];
+            document.getElementById('USERID_H').innerText = s_userID;
+            return true;
+          }
+      }
+      catch(e)
+      {
+        const myJson = e.message;
+        func_ShowAlert(myJson);
+        console.log(e.message);
+        return (e);
+      }
+  }
+
+  const getFlagCnt = async () => 
+  {
+      try
+      {
+          const response = await fetch('http://localhost:8080/cnt|||flags');
+          const myJson = await response.text(); //extract TEXT from the http response
+          document.getElementById('top_flags').innerText = myJson + ' Flags';
+      }
+      catch(e){
+          const myJson = e.message;
+          document.getElementById('top_flags').innerText = myJson;
+          console.log(e.message);
+          return (e);
+      }
+  }
+
+  const getEnvCnt = async () => 
+  {
+      try
+      {
+          const response2 = await fetch('http://localhost:8080/cnt|||environments');
+          const myJson = await response2.text(); //extract TEXT from the http response
+          document.getElementById('top_env').innerText = myJson + ' Environments';
+      }
+      catch(e){
+          const myJson = e.message;
+          document.getElementById('top_env').innerText = myJson;
+          console.log(e.message);
+          return (e);
+      }
+  }
+
+  const getProjCnt = async () => 
+  {
+      try{
+          const response3 = await fetch('http://localhost:8080/cnt|||projects');
+          const myJson = await response3.text(); //extract TEXT from the http response
+          document.getElementById('top_projects').innerText = myJson + ' Projects';
+      }
+      catch(e)
+      {
+          const myJson = e.message;
+          document.getElementById('top_projects').innerText = myJson;
+          console.log(e.message);
+          return (e);
+      }
+  }
+</script>
+
+<script>func_ShowAlert('Please wait, loading count for Projects, Environments, and Flags in your environment...', true);</script>
+<script> getFlagCnt();</script>
+<script>getEnvCnt();</script>
+<script>getProjCnt();</script>
+<script>func_ShowAlert('Done...', true);</script>
+
+
+</html>

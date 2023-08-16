@@ -1,0 +1,718 @@
+
+<!DOCTYPE html>
+<html lang="en" class="light-style layout-footer-fixed layout-menu-collapsed" dir="ltr" data-theme="theme-default"
+  data-assets-path="./assets/" data-template="vertical-menu-template-starter">
+
+<head>
+  <!--//**//-->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="./CSS/table.css">
+  <!--//**//-->
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
+
+  <title>LD AdvSrch</title>
+
+  <meta name="description" content="" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="./assets/img/favicon/favicon.ico" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+    rel="stylesheet" />
+
+  <!-- Icons. Uncomment required icon fonts -->
+  <link rel="stylesheet" href="./assets/vendor/fonts/boxicons.css" />
+  <!-- <link rel="stylesheet" href="./assets/vendor/fonts/fontawesome.css" /> -->
+  <!-- <link rel="stylesheet" href="./assets/vendor/fonts/flag-icons.css" /> -->
+
+  <!-- Core CSS -->
+  <link rel="stylesheet" href="./assets/vendor/css/core.css" />
+  <link rel="stylesheet" href="./assets/vendor/css/theme-default.css" />
+  <link rel="stylesheet" href="./assets/css/demo.css" />
+
+  <!-- Vendors CSS -->
+  <link rel="stylesheet" href="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+
+  <!-- Helpers -->
+  <script src="./assets/vendor/js/helpers.js"></script>
+
+  
+  <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+  <script src="./assets/js/config.js"></script>
+
+</head>
+<!--// ** //-->
+<script type="text/javascript" src="./DynaTable/ArrayToTable.js" ></script>
+
+
+<script>
+s_userID = '';
+// ----------------------------------------------
+// --------------  Check if looged in------------
+// ----------------------------------------------
+const isLoggedIn = async () => 
+  {
+      try
+      {
+          const response = await fetch('http://localhost:8080/validlogin');
+          const myJson = await response.json(); //extract TEXT from the http response
+          if (JSON.parse(myJson)['success']==true)
+          {
+            console.log('opening index.html');
+            window.open('index.html','_self');
+          }
+          else  // if user is already logged - no action needed
+          {
+            console.log(JSON.parse(myJson)['message']);
+            s_userID = JSON.parse(myJson)['userid'];
+            document.getElementById('USERID_H').innerText = s_userID;
+            return true;
+          }
+      }
+      catch(e)
+      {
+        const myJson = e.message;
+        func_ShowAlert(myJson);
+        console.log(e.message);
+        return (e);
+      }
+  }// End of isLoggedin
+
+
+    // ----------------------------------------------
+    // --------Common function: XML to Array --------
+    // ----------------------------------------------
+    function convertXmlToArray(xmlStr) 
+    {
+        const jsArray = JSON.parse(xmlStr);
+        return jsArray;
+    }
+
+    // ----------------------------------------------
+    // ------------- UI: Submit List or Search ------
+    // ----------------------------------------------
+    function func_selector ()
+    {
+        bol_TabSelect = document.getElementById("navs-top-home").classList.contains('active');
+        if (bol_TabSelect == true)
+        {
+            getListofProj();
+        }
+        else 
+        {
+            getSrchProj();
+        }
+    }
+
+    // ---------------------------------------------
+    // -----UI: Show/Hide All the search Form ------
+    // ----------------------------------------------
+    function func_toggleDivState (me, s_element,)
+    {
+        state = document.getElementById(s_element);
+        document.getElementById("form_search").reset();
+        if (me.id == "LAP")
+        {
+            state.style.display = "none";
+            document.getElementById("LAP").style.color="green";
+            document.getElementById("SAP").style.color="Gray";
+        }
+        else
+        {
+            state.style.display = "block";
+            document.getElementById("SAP").style.color="green";
+            document.getElementById("LAP").style.color="Gray";
+        }
+    }
+
+    // ----------------------------------------------
+    // -----------UI: Show/Hide Form Field-----------
+    // ----------------------------------------------
+    function func_toggleElementState (me, s_element)
+    {
+        state = document.getElementById(s_element);
+        if (me.checked == true)
+        {
+            state.disabled = false;
+        }
+        else
+        {
+            state.disabled = true;
+        }
+    }
+
+    // ----------------------------------------------
+    // ------------MAIN: List All Environments-----------
+    // ----------------------------------------------
+    const getListofProj = async () => 
+    {
+        // ---------- Status update ----------
+        const d = new Date();
+        let time = d.getTime();
+        s_orig1 = document.getElementById("lbl_functionstat").innerText;
+        s_orig2 = document.getElementById("lbl_functioninfo").innerText;
+        document.getElementById("lbl_functionstat").innerText = "Function Running....";
+        document.getElementById("lbl_functioninfo").innerText = "NOW, Started Retrieving Data, Please Wait....";
+
+        // ------ Start fetching the data
+        document.getElementById('results_line2').innerHTML = '';
+        const response = await fetch('http://localhost:8080/list|||environments|||' + document.getElementById('skip_tfrm_envmax').value);
+        const myJson = await response.text(); //extract TEXT from the http response
+        //document.getElementById('ProjList').innerHTML += myJson;
+
+        //-------------------------------------------------------------------
+        // ---------------- Convert the JSON to JS Array --------------------
+        //-------------------------------------------------------------------
+        myArray = convertXmlToArray(myJson);
+        //--------------------------------------------------------------------------------
+        // - Call the function to write the JS Array into a HTML Table and insert on page -
+        //---------------------------------------------------------------------------------
+        var tableGen = new ArrayToTable();
+        tableGen.tableclasses = 'bluetable table-with-oddeven';
+        tableGen.tableid = 'tbl_envlist';
+        tableGen.replaceRules = {"s_env_id":"Environment ID", "s_env_data":"Environment JSON Details", "s_env_tags":"Tags"}
+        tableGen.putTableHtmlToId(myArray, 'results_line2', 's_env_id, s_env_tags, s_proj_id');
+
+        // ---------- Status update ----------
+        const d2 = new Date();
+        let time2 = d2.getTime();
+        tdiff = time2-time;
+        s_tdiff = tdiff.toLocaleString("en-US")
+        document.getElementById("lbl_functionstat").innerText = s_orig1;
+        document.getElementById("lbl_functioninfo").innerText = "Function execution succeeded, running for " + s_tdiff + " milliseconds...";
+    }
+
+    // ----------------------------------------------
+    // ----------MAIN: Search All Environments-----------
+    // ----------------------------------------------
+    const getSrchProj = async () => 
+    {
+        const forms = document.querySelectorAll('form');
+        const form = forms[1];
+        s_srchStr = '';
+        s_srchVal = '';
+        s_URL = '';
+        cnt = 0;
+
+        // ---------- Status update ----------
+        const d = new Date();
+        let time = d.getTime();
+        s_orig1 = document.getElementById("lbl_functionstat").innerText;
+        s_orig2 = document.getElementById("lbl_functioninfo").innerText;
+        document.getElementById("lbl_functionstat").innerText = "Function Running....";
+        document.getElementById("lbl_functioninfo").innerText = "NOW, Started Retrieving Data, Please Wait....";
+
+        //---------------------------------------------------------
+        //---------------------------------------------------------
+        document.getElementById('results_line2').innerHTML = '';
+
+        //-----------------------------------------------------------------------------
+        // ------ Cycle through the form fields and Create the URL search  ------------
+        //-----------------------------------------------------------------------------
+        Array.from(forms[0].elements).forEach((input) => 
+        {
+            if ('text,select-one,number'.indexOf(input.type) >= 0 )
+            {
+              if (input.id.substring(0,4) != 'skip')
+              {
+                  if (document.getElementById("skip_"+input.id).checked == true)
+                  {
+                      if (cnt>0)
+                      {
+                          switch (input.type)
+                          {
+                            case 'select-one':
+                              s_srchVal += ',' + input.value;
+                              break;
+                            case 'checkbox': //* value inside the input field to search aginest = Right side of the equation
+                              s_srchVal += ',' + input.checked;
+                              break;
+                            case 'number':
+                              s_srchVal += ',' + input.value;
+                              break;
+                            default:
+                              s_srchVal += ',"' + input.value;
+                          }
+                         
+                          s_srchStr += ',' + input.id + '":'; //* the field name to search for in LD = Left side of the equation
+                          cnt++;
+                      }
+                      else 
+                      {
+                        switch (input.type)
+                        {
+                          case 'select-one':
+                            s_srchVal += input.value;
+                            break;
+                          case 'checkbox': //* value inside the input field to search aginest = Right side of the equation
+                            s_srchVal += input.checked;
+                            break;
+                          case 'number':
+                            s_srchVal += input.value;
+                            break;
+                          default:
+                              s_srchVal += '"' + input.value;
+                        }
+                          s_srchStr += input.id + '":'; //* the field name to search for in LD = Left side of the equation
+                          cnt++;
+                      }
+                  }
+              }
+            }
+        });
+        //-----------------------------------------------------------------------------
+        // ------------ Execute the search URL and return an JSON Array ---------------
+        //-----------------------------------------------------------------------------
+
+        s_URL = 'http://localhost:8080/search|||environments' + '|||' + document.getElementById('skip_tfrm_envmax2').value + '|||' + s_srchStr + '|||' + s_srchVal;
+       
+        const response = await fetch(s_URL);
+        const myJson = await response.text() // .text(); //extract TEXT from the http response
+
+        //-------------------------------------------------------------------
+        // ---------------- Convert the JSON to JS Array --------------------
+        //-------------------------------------------------------------------
+        myArray = convertXmlToArray(myJson);
+        //var JSONobj = JSON.parse(myArray[0]['s_env_data']);
+        //html_Output = formatJsonToHtml(JSONobj);
+        //--------------------------------------------------------------------------------
+        // - Call the function to write the JS Array into a HTML Table and insert on page -
+        //---------------------------------------------------------------------------------
+        var tableGen = new ArrayToTable();
+        tableGen.replaceRules = {"s_proj_id":"Project ID", "s_env_id":"Environment ID", "s_env_data":"Environment JSON Details", "s_env_tags":"Tags"}
+        tableGen.tableclasses = 'bluetable table-with-oddeven';
+        tableGen.tableid = 'something-unique';
+        //var tableGen = new ArrayToTable();
+        tableGen.putTableHtmlToId(myArray, 'results_line2','s_env_id, s_env_tags, s_proj_id');
+
+        // ---------- Status update ----------
+        const d2 = new Date();
+        let time2 = d2.getTime();
+        tdiff = time2-time;
+        s_tdiff = tdiff.toLocaleString("en-US")
+        document.getElementById("lbl_functionstat").innerText = s_orig1;
+        document.getElementById("lbl_functioninfo").innerText = "Function execution succeeded, running for " + s_tdiff + " milliseconds...";
+    }
+// *********************************************************************************************************
+function func_validate(obj_input)
+{
+
+  Number((obj_input.value)<0 || Number(obj_input.value)>100)? obj_input.style.borderColor = 'red':obj_input.style.borderColor = 'lightgray';
+  Number((obj_input.value)<0 || Number(obj_input.value)>100)? obj_input.value=0:obj_input.value=obj_input.value;
+
+}
+</script>
+<!--// ** //-->
+<body onload="isLoggedIn();">
+
+  <!-- ********************************* Right Slider to show details ***************************-->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEnd" aria-labelledby="offcanvasEndLabel">
+  <div class="offcanvas-header">
+    <h5 id="offcanvasEndLabel" class="offcanvas-title">JSON Details</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body my-auto mx-0 flex-grow-0">
+    <p id="myModalContent3" class="text-start"> </p>
+    <button type="button" class="btn btn-primary mb-2 d-grid w-100" data-bs-dismiss="offcanvas">Cancel</button>
+  </div>
+</div>
+<!-- ************************************************************************************-->
+
+
+
+<!-- ********************************* Layout wrapper ********************************* -->
+<div class="layout-wrapper layout-content-navbar">
+
+  <!-- Layout container -->
+  <div class="layout-container">
+
+    <!-- Menu -->
+    <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+      <div class="app-brand demo">
+        <a href="HomeH.html" class="app-brand-link">
+          <span class="app-brand-logo demo">
+            <img src="./assets/img/branding/logo.png" class="h-auto" width="40px" alt="logo">
+          </span>
+          <span class="app-brand-text demo menu-text fw-bold ms-2">Advanced Search
+            <br />
+            <span class="fs-tiny fw-medium opacity-25">for LaunchDarkly</span>
+          </span>
+        </a>
+
+        <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
+          <i class="bx bx-chevron-left bx-sm align-middle"></i>
+        </a>
+      </div>
+
+      <div class="menu-inner-shadow"></div>
+
+      <ul class="menu-inner py-1">
+        <!-- Page -->
+        <li class="menu-item">
+          <a href="homeH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-home-circle"></i>
+            <div data-i18n="Email">Home</div>
+          </a>
+        </li>
+
+        <li class="menu-header small text-uppercase">
+          <span class="menu-header-text">Search</span>
+        </li>
+
+        <li class="menu-item">
+          <a href="ProjectsH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Projects</div>
+          </a>
+        </li>
+        <li class="menu-item active">
+          <a href="EnvironmentsH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Environments</div>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="FlagsH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Feature Flags</div>
+          </a>
+        </li>
+
+        <li class="menu-header small text-uppercase">
+          <span class="menu-header-text">Admin</span>
+        </li>
+
+        <li class="menu-item">
+          <a href="RefreshdbH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Refresh CRDB</div>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="SettingsH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Settings</div>
+          </a>
+        </li>
+        <li class="menu-header small text-uppercase">
+          <span class="menu-header-text">Misc.</span>
+        </li>
+        <li class="menu-item">
+          <a href="SourcecodeH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Source Code</div>
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <!--/ Menu -->
+
+    <!-- Layout page -->
+    <div class="layout-page">
+
+      <!-- Navbar -->
+      <nav
+        class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+        id="layout-navbar">
+
+        <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+          <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+            <i class="bx bx-menu bx-sm"></i>
+          </a>
+        </div>
+
+        <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+          <div class="">
+            <div class="nav-item d-flex align-items-center">
+              <i class="blockquote">The Advanced Search for LD accross Projects, Environments and Flags...</i>
+            </div>
+          </div>
+          <ul class="navbar-nav flex-row align-items-center ms-auto">
+            <!-- User -->
+            <li class="nav-item navbar-dropdown dropdown-user dropdown">
+              <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+                <div class="avatar avatar-online">
+                  <img src="./assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
+                </div>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <div class="d-flex">
+                      <div class="flex-shrink-0 me-3">
+                        <div class="avatar avatar-online">
+                          <img src="./assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
+                        </div>
+                      </div>
+                      <div class="flex-grow-1">
+                        <span id="USERID_H" class="fw-semibold d-block">John Doe</span>
+                        <small class="text-muted">Admin</small>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <div class="dropdown-divider"></div>
+                </li>
+                
+                <li>
+                  <a class="dropdown-item" href="SettingsH.html">
+                    <i class="bx bx-cog me-2"></i>
+                    <span class="align-middle">Settings</span>
+                  </a>
+                </li>
+                
+                <li>
+                  <div class="dropdown-divider"></div>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="index.html">
+                    <i class="bx bx-power-off me-2"></i>
+                    <span class="align-middle">Log Out</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <!--/ User -->
+
+          </ul>
+        </div>
+      </nav>
+      <!--/ Navbar -->
+
+      <!-- Content wrapper -->
+      <div class="content-wrapper"> <!-- SPACER DIV-->
+
+        <!-- Content -->
+        <div class="container-xxl flex-grow-1 container-p-y">
+
+            <!-- container for the 2 cards-->
+            <div class="row gy-4" data-masonry='{"percentPosition": true }'> 
+
+              <!-- CARD #1: Form Elements -->
+              <div class="col-md">
+                <div class="card text-white bg-secondary">
+                  <div class="card-header"><B>Environment Search</B></div>
+                  <div class="card-body">
+                    <p class="card-text">
+                      <form id="form_search">
+                      <!-- ********************************** FORM **********************************-->
+                      <div class="nav-align-top">
+                        <ul class="nav nav-tabs" role="tablist">
+                          <li class="nav-item">
+                            <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-top-home" aria-controls="navs-top-home" aria-selected="true">List All</button>
+                          </li>
+                          <li class="nav-item">
+                            <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-top-profile" aria-controls="navs-top-profile" aria-selected="false">Search</button>
+                          </li>
+                        </ul><!-- the navigation TABS-->
+
+                        <div class="tab-content">
+                          <div class="tab-pane fade show active" id="navs-top-home" role="tabpanel">
+                             <!-- **************** FORM - List All *****************-->
+                            <p style="display:inline; font-size: 9px;align-self: baseline;vertical-align: bottom; font-family: 'Courier New', Courier, monospace;color: black;">Type the Max Rows to be Returned (0=Max): </p>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text">Max Environments</span>
+                                <input value="1" onblur="validate(this, event)" id="skip_tfrm_envmax" type="text" class="form-control" placeholder="Max environments to retrieve. 0 = retrieve all." />
+                              </div><!-- **************** //FORM - List All *****************-->
+                          </div>
+
+                          <div class="tab-pane fade" id="navs-top-profile" role="tabpanel">
+                            <!-- **************** FORM - Search *****************-->
+                            <p style="display:inline; font-size: 9px;align-self: baseline;vertical-align: bottom; font-family: 'Courier New', Courier, monospace;color: black;">Type the Max Rows to be Returned (0=Max): </p>
+                            <div class="input-group mb-3">
+                              <span class="input-group-text">Max Environments</span>
+                              <input value="1" onblur="validate(this, event)" id="skip_tfrm_envmax2" type="text" class="form-control" placeholder="Max environments to retrieve. 0 = retrieve all." />                              
+                            </div><!----------------------//Max Environments------------------------>
+                           
+                            <div class="input-group mb-3"> <!--// skip_key, key-->
+                              <div class="input-group-text">
+                                <input id="skip_key" class="form-check-input mt-0" type="checkbox" checked value="checked" onchange="func_toggleElementState(this,'key')">
+                              </div>
+                              <span class="input-group-text"> Environment ID </span>
+                              <input type="text" class="form-control" id="key">
+                            </div><!----------------------//Environment ID------------------------>
+
+                            <div class="input-group mb-3"> <!--// skip_defaultTtl, defaultTtl-->
+                              <div class="input-group-text">
+                                <input id="skip_defaultTtl" class="form-check-input mt-0" type="checkbox" checked value="checked" onchange="func_toggleElementState(this,'defaultTtl')">
+                              </div>
+                              <span class="input-group-text">Default TTL </span>
+                              <input type="number" min=0 max=100 class="form-control" id="defaultTtl" value=60 onblur="func_validate(this);">
+                            </div><!----------------------//Default TTL------------------------>
+
+                            <div class="input-group mb-3"> <!--// skip_secureMode, secureMode-->
+                              <div class="input-group-text">
+                                <input id="skip_secureMode" class="form-check-input mt-0" type="checkbox" checked value="checked" checked onchange="func_toggleElementState(this,'secureMode');">
+                              </div>
+                              <select class="form-select" id="secureMode">
+                                <option value="true">Secure Mode Enabled</option>
+                                <option value="false">Secure Mode Disabled</option>
+                              </select>
+                            </div><!----------------------//Secure Mode------------------------>
+
+                            <div class="input-group mb-3"><!--// skip_requireComments, requireComments-->
+                              <div class="input-group-text">
+                                <input id="skip_requireComments" class="form-check-input mt-0" type="checkbox" checked value="checked" checked onchange="func_toggleElementState(this,'requireComments');">
+                              </div>
+                              <select class="form-select" id="requireComments">
+                                <option value="true">Require Comments Enabled</option>
+                                <option value="false">Require Comments Disabled</option>
+                              </select>
+                            </div><!----------------------//Require Comments------------------------>
+
+                            <div class="input-group mb-3"><!--// skip_confirmChanges, confirmChanges-->
+                              <div class="input-group-text">
+                                <input id="skip_confirmChanges" class="form-check-input mt-0" type="checkbox" checked value="checked" checked onchange="func_toggleElementState(this,'confirmChanges');">
+                              </div>
+                              <select class="form-select" id="confirmChanges">
+                                <option value="true">Require Confirmation Enabled</option>
+                                <option value="false">Require Confirmation Disabled</option>
+                              </select>
+                            </div><!----------------------//Require Confirmation------------------------>
+
+                            <div class="input-group mb-3"><!--// skip_defaultTrackEvents, defaultTrackEvents-->
+                              <div class="input-group-text">
+                                <input id="skip_defaultTrackEvents" class="form-check-input mt-0" type="checkbox" checked value="checked" checked onchange="func_toggleElementState(this,'defaultTrackEvents');">
+                              </div>
+                              <select class="form-select" id="defaultTrackEvents">
+                                <option value="true">Data Export Enabled Enabled</option>
+                                <option value="false">Data Export Enabled Disabled</option>
+                              </select>
+                            </div><!----------------------//Data Export Enabled------------------------>
+
+                            <!-- **************** /End of FORM - Search *****************-->
+                          </div>
+                        </div>
+                      </div>
+                      <!-- **************************** Submit Button**************************-->
+                      <div height="5px" style="font-size: 6px;">&nbsp; </div> <!-- spacer-->
+                      <div class="input-group mb-2">
+                        <button type="button" class="btn btn-primary me-2" id="bfrm_submit" data-bs-toggle="modal" data-bs-target="#modals-transparent" onclick="func_selector();">
+                          <span class="tf-icons bx bx-check me-1"></span> Start
+                        </button>
+                      </div>
+                      <!-- *****************************/End of Submit Button **************************-->
+                      </form>
+                    </p>
+                  </div>
+                </div>
+              </div> <!-- End of CARD #1-->
+
+              <!-- CARD #2-->
+              <div class="col-md-5">
+                <div class="card mb-3">
+                  <div class="row g-0">
+                    
+                    <div class="col-md-8">
+                      <div class="card-body">
+                        <h5 class="card-title">Search Environments</h5>
+                        <p class="card-text">
+                          This function will either list all the environments in your LD subscription 
+                           or allow you to search with some of the common fields defining a project in LD.<br>
+                           Select one of the tabs on the left representing your intended results. 
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4"><img class="card-img card-img-left" src="assets/img/elements/14.png" alt="Card image" /></div>
+                  </div>
+                </div>
+              </div> <!-- End of CARD #2-->
+
+          </div> <!-- ROW DIV-->
+
+          <!-- Row 2 with results-->
+          <div class="row gy-4" data-masonry='{"percentPosition": true }'> 
+            <!-- Separator with header-->
+            <hr class="mt-5">
+            <!-- Results Card in Row 2-->
+            <div class="card" style="width: 100%;">
+              <div class="card-body">
+                <h5 class="card-title"><B>Environments</B> List & Search</h5>
+                <h6 id="lbl_functionstat" class="card-subtitle mb-2 text-muted">Function Idle...</h6>
+                <p id="lbl_functioninfo" id="results_line1" class="card-text">Click the START button to begin..</p>
+                <p id="results_line2" class="card-text">
+                  <!-- **************************** Results *************************************** -->
+                  
+                  <!-- **************************************************************************** -->
+                </p>
+              </div>
+            </div>
+          </div>
+
+          </div> <!-- end of container for the 2 cards-->
+
+          
+          <!-- Messages DIV-->
+          <div class="alert alert-primary d-flex" role="alert" id="divStatus" style="visibility: hidden;">
+            <span class="badge badge-center rounded-pill bg-primary border-label-primary p-3 me-2"><i class="bx bx-command fs-6"></i></span>
+            <div class="d-flex flex-column ps-1">
+              <span id="divStatusText"></span>
+            </div>
+          </div>
+          <div class="alert alert-danger" role="alert"  width="100%" height="15px" style="visibility: hidden;"><B id="divStatusText"></B></div>
+          <!-- //Messages DIV-->
+
+
+        <!--/ Content -->
+
+         <!-- Footer -->
+         <footer class="content-footer footer bg-footer-theme">
+          <div
+            class="container-xxl d-flex flex-wrap justify-content-between align-items-center py-2 flex-md-row flex-column">
+
+            <div class="mb-2 mb-md-0">
+              ©
+              <script>
+                document.write(new Date().getFullYear());
+              </script>
+              <a href="#" target="_blank" class="footer-link fw-bolder">ThemeSelection</a>
+            </div>
+            <div>
+              <a href="https://themeselection.com/documentation" target="_blank"
+                class="footer-link me-4">Documentation</a>
+            </div>
+          </div>
+        </footer>
+        <!--/ Footer -->
+
+        <!-- Content area backdrop -->
+        <div class="content-backdrop fade"></div>
+      </div>
+      <!--/ Content wrapper -->
+
+    </div>
+    <!-- Layout page -->
+
+  </div>
+  <!-- Layout container -->
+
+  <!-- Overlay -->
+  <div class="layout-overlay layout-menu-toggle"></div>
+
+  <!-- Drag Target Area To SlideIn Menu On Small Screens -->
+  <div class="drag-target"></div>
+</div>
+<!--/ Layout wrapper -->
+
+  <!-- Core JS -->
+  <!-- build:js assets/vendor/js/core.js -->
+  <script src="./assets/vendor/libs/jquery/jquery.js"></script>
+  <script src="./assets/vendor/libs/popper/popper.js"></script>
+  <script src="./assets/vendor/js/bootstrap.js"></script>
+  <script src="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+  <script src="./assets/vendor/libs/hammer/hammer.js"></script>
+  <script src="./assets/vendor/js/menu.js"></script>
+  <!-- endbuild -->
+
+  <!-- Main JS -->
+  <script src="./assets/js/main.js"></script>
+</body>
+
+</html>
