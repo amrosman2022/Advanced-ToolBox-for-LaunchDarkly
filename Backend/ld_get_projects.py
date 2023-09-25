@@ -47,7 +47,7 @@ def get_all_projects(api_key,s_Proj_Ids, n_projCnt):
 #----------------------------------------------------------------------------------
 def func_main_get_all_projects(api_key, s_ProjID, n_ffCnt):     # n_ffCnt--> 0 = Max ||| s_ProjID --> not implemented yet
     # Replace 'YOUR_API_KEY' with your actual LaunchDarkly API key
-    #api_key = 'api-21e8bc01-3972-4b3d-a5a3-92f381397c80' #ao-api-access
+    #api_key = 'api-xxxxx' #name
     x = 0
     projSaved = 0
     projFailed = 0

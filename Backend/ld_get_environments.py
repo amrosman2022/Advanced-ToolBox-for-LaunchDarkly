@@ -36,7 +36,7 @@ def get_all_environments(api_key,s_projKey, n_envCnt):
 
 def main_all_environments(api_key, s_projKey, n_envCnt):
     # Replace 'YOUR_API_KEY' with your actual LaunchDarkly API key
-    #api_key = 'api-21e8bc01-3972-4b3d-a5a3-92f381397c80' #ao-api-access
+    #api_key = 'api-xxxxx' #name
     global envSaved
     global envFailed
     Environments = get_all_environments(api_key, s_projKey, n_envCnt)

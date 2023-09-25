@@ -50,7 +50,7 @@ def main_all_FFs(api_key, s_projKey, s_envKey, n_ffCnt):
     ffResults = ""
     
     # Replace 'YOUR_API_KEY' with your actual LaunchDarkly API key
-    #api_key = 'api-21e8bc01-3972-4b3d-a5a3-92f381397c80' #ao-api-access
+    #api_key = 'api-xxxxx' #name
     FFs = get_all_FF(api_key, s_projKey, s_envKey, n_ffCnt)
 
     # get the "items" in the FFs list

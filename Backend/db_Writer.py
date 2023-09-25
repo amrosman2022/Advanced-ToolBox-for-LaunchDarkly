@@ -8,6 +8,7 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 import psycopg2
 from psycopg2.errors import SerializationFailure
 import psycopg2.extras
+import es_common
 
 global cur
 
@@ -104,7 +105,7 @@ def parse_cmdline():
     parser.add_argument(
         "dsn",
         #default=os.environ.get("DATABASE_URL"),
-        default="postgresql://john:FxXm44tjf2BSG1GQywmKGQ@solid-sphinx-11729.7tt.cockroachlabs.cloud:26257/LD_Search?sslmode=verify-full",
+        default=es_common.s_g_db_conn,
         nargs="?",
         help="""\
 database connection string\
