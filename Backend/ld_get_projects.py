@@ -2,6 +2,7 @@ import requests
 import json
 import ld_get_environments
 import db_AccessLayer
+import es_common
 
 n_totalProjects = 0
 x=0
@@ -47,7 +48,6 @@ def get_all_projects(api_key,s_Proj_Ids, n_projCnt):
 #----------------------------------------------------------------------------------
 def func_main_get_all_projects(api_key, s_ProjID, n_ffCnt):     # n_ffCnt--> 0 = Max ||| s_ProjID --> not implemented yet
     # Replace 'YOUR_API_KEY' with your actual LaunchDarkly API key
-    #api_key = 'api-xxxxx' #name
     x = 0
     projSaved = 0
     projFailed = 0
@@ -61,7 +61,7 @@ def func_main_get_all_projects(api_key, s_ProjID, n_ffCnt):     # n_ffCnt--> 0 =
         if (key == 'items'):
             for project in value:
                 x=x+1
-                #print(x,'-->', project)
+                es_common.func_Logging(x + '-->' + project)
 
                 # control the DB state ||  #1=open+execute, 2=execute+close, 3=open+exec+close, 0=execute only
                 if (len(value)==1):
@@ -74,7 +74,7 @@ def func_main_get_all_projects(api_key, s_ProjID, n_ffCnt):     # n_ffCnt--> 0 =
                             flip_state = 0
                         else:
                             flip_state = 2
-                projResults = db_AccessLayer.main('projects',flip_state,project['key'],'','',json.dumps(project))
+                projResults = db_AccessLayer.main('projects',flip_state,project['key'],'','',project)
                 if (projResults == 'INSERT 0 1'):
                     projSaved = projSaved + 1
                 else:

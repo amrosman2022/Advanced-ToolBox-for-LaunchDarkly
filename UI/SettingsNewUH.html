@@ -1,4 +1,4 @@
-
+<!-- this file is called only on the first instance of running the system and used to create the settings file-->
 <!DOCTYPE html>
 <html lang="en" class="light-style layout-footer-fixed layout-menu-collapsed" dir="ltr" data-theme="theme-default"
   data-assets-path="./assets/" data-template="vertical-menu-template-starter">
@@ -36,6 +36,7 @@
 
   <!-- Helpers -->
   <script src="./assets/vendor/js/helpers.js"></script>
+  <script src="./common/commonH.js"></script>
 
   
   <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
@@ -50,87 +51,41 @@ var bol_idChanged = false;
 var bol_formSaved = false;
 
 
-// ----------------------------------------------
-// --------------  Check if looged in------------
-// ----------------------------------------------
-const isLoggedIn = async () => 
-  {
-      try
-      {
-          const response = await fetch('http://localhost:8080/validlogin');
-          const myJson = await response.json(); //extract TEXT from the http response
-          if (JSON.parse(myJson)['success']==true)
-          {
-            console.log('opening index.html');
-            window.open('index.html','_self');
-          }
-          else  // if user is already logged - no action needed
-          {
-            console.log(JSON.parse(myJson)['message']);
-            return true;
-          }
-      }
-      catch(e)
-      {
-        const myJson = e.message;
-        func_ShowAlert(myJson);
-        console.log(e.message);
-        return (e);
-      }
-  }// End of isLoggedin
-
-
-//-----------------------------------------------------------
-//-----------------------------------------------------------
-//-----------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 function func_regexFind(s_srcText,n_mode, str_updateObj='')
 {
-// Regular expression to match text between "//" and ":"
-switch (n_mode)
-{
-  case 1:
-    var regex = /\/\/(.*?):/g;
-    break;
-  case 2:
-    var regex = /:(.*?@)/g;
-    break;
-}
-
-var matches = s_srcText.match(regex);
-if (matches) {
-    for (var i = 0; i < matches.length; i++) {
-        var match = matches[i];
-        // Remove "//" and ":" from the match
-        (n_mode==2)?extractedText=match.split(':')[2].substring(match.split(':')[2].length-1,0):match;
-        (n_mode==1)?extractedText = match.slice(2, -1): match ;
-        console.log(extractedText);
-        if (str_updateObj.length>0)
-        {
-          document.getElementById(str_updateObj).value = extractedText;
-        }
-        return extractedText;
-    }
-} else {
-    func_ShowAlert("DB Connection does not contain user name and password. Please validate DB Connection format.",true);
-    return '';
-}
-
-}
-
-function func_ShowAlert(s_Message='', b_visibility=false)
-{
-  if (b_visibility == true)
+  // Regular expression to match text between "//" and ":"
+  switch (n_mode)
   {
-    document.getElementById('divStatus').style.visibility = 'visible';
-    document.getElementById('divStatusText').innerText = s_Message;
-    setTimeout(func_ShowAlert, 3000); // Call hideElement after 3 seconds
+    case 1:
+      var regex = /\/\/(.*?):/g;
+      break;
+    case 2:
+      var regex = /:(.*?@)/g;
+      break;
   }
-  else
-  {
-    document.getElementById('divStatus').style.visibility = 'hidden';
-    document.getElementById('divStatusText').innerText = '';
+
+  var matches = s_srcText.match(regex);
+  if (matches) {
+      for (var i = 0; i < matches.length; i++) {
+          var match = matches[i];
+          // Remove "//" and ":" from the match
+          (n_mode==2)?extractedText=match.split(':')[2].substring(match.split(':')[2].length-1,0):match;
+          (n_mode==1)?extractedText = match.slice(2, -1): match ;
+          console.log(extractedText);
+          if (str_updateObj.length>0)
+          {
+            document.getElementById(str_updateObj).value = extractedText;
+          }
+          return extractedText;
+      }
+  } else {
+      func_ShowAlert("DB Connection does not contain user name and password. Please validate DB Connection format.",true);
+      return '';
   }
-  
+
 }
 
 //-----------------------------------------------------------
@@ -169,6 +124,10 @@ const func_LoadValues = async () =>
 
 }
 
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 function text_encode (s)
 {
   try 
@@ -183,9 +142,10 @@ function text_encode (s)
   }
 }
 
-//-----------------------------------------------------------
-//-----------------------------------------------------------
-//-----------------------------------------------------------
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 const func_saveSettings = async () => 
 {
     // ------ Start fetching the data
@@ -214,9 +174,10 @@ const func_saveSettings = async () =>
 
 }
 
-//-----------------------------------------------------------
-//-----------------------------------------------------------
-//-----------------------------------------------------------
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 function validate_form(formID)
 {
   s_srchPairs = '';
@@ -243,6 +204,10 @@ function validate_form(formID)
   
 }
 
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 function func_checkChanged()
 {
   if (bol_idChanged==true && bol_formSaved==true)
@@ -257,9 +222,10 @@ function func_checkChanged()
 }
 </script>
 
+
+
+
 <body onload="">
-
-
 <!-- Layout wrapper -->
 <div class="layout-wrapper layout-content-navbar">
 

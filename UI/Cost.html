@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="en" class="light-style layout-footer-fixed layout-menu-collapsed" dir="ltr" data-theme="theme-default"
+  data-assets-path="./assets/" data-template="vertical-menu-template-starter">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.5, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
+
+  <title>LD AdvSrch</title>
+
+  <meta name="description" content="" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="./assets/img/favicon/favicon.ico" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+    rel="stylesheet" />
+
+  <!-- Icons. Uncomment required icon fonts -->
+  <link rel="stylesheet" href="./assets/vendor/fonts/boxicons.css" />
+  
+  <link rel="stylesheet" href="./assets/vendor/fonts/fontawesome.css" />
+  <!-- <link rel="stylesheet" href="./assets/vendor/fonts/flag-icons.css" /> -->
+
+  <!-- Core CSS -->
+  <link rel="stylesheet" href="./assets/vendor/css/core.css" />
+  <link rel="stylesheet" href="./assets/vendor/css/theme-default.css" />
+  <link rel="stylesheet" href="./assets/css/demo.css" />
+
+  <!-- Vendors CSS -->
+  <link rel="stylesheet" href="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+  <script src="./assets/vendor/apexcharts/apexcharts.js"></script>
+  <link rel="stylesheet" href="./assets/vendor/libs/apex-charts/apex-charts.css" />
+
+  <!-- Helpers -->
+  <script src="./assets/vendor/js/helpers.js"></script>
+  <script src="./common/commonH.js"></script>
+
+  
+  <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+  <script src="./assets/js/config.js"></script>
+
+</head>
+
+<body>
+  
+<button onclick="Render();">Render</button>
+
+<Table width="95%" align="center">
+  <TR>
+    <TD id="TDChartUsers" width="45%"></TD>
+    <TD width="5%"></TD>
+    <TD id="TDChartDepts" width="45%"></TD>
+  </TR>
+</Table>
+
+<!--  ******************************* the Cost.html page **********************************-->
+<script>
+//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------
+const getCostDept = async (objchart) => 
+{
+    try
+    {
+        const response = await fetch('http://localhost:8080/cost|||department||| |||');
+        const myJson = await response.json(); //extract TEXT from the http response
+        result = objchart.updateSeries([{Cost_By_Department: 'Cost',data: myJson}]);
+    }
+    catch(e){
+        const myJson = e.message;
+        func_ShowAlert(myJson)
+        console.log(myJson);
+        return (e);
+    }
+}
+
+//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------
+const getCostPerson = async (objchart) => 
+{
+    try
+    {
+        const response = await fetch('http://localhost:8080/cost|||user||| |||');
+        const myJson = await response.json(); //extract TEXT from the http response
+        result = objchart.updateSeries([{name: 'Cost',data: myJson}]);
+    }
+    catch(e){
+        const myJson = e.message;
+        func_ShowAlert(myJson)
+        console.log(myJson);
+        return (e);
+    }
+}
+
+//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------
+function func_InitializeChart(s_HeaderTxt, n_Height, s_TargetDiv)
+{
+  var cahrt;
+
+  var options = 
+  {
+    plotOptions: {
+      treemap: {
+        distributed: true
+      }
+    },
+    series: [],
+    chart: {
+      height: n_Height,
+      type: 'treemap',
+    },
+    dataLabels: {
+      enabled: true
+    },
+    title: {
+      text: s_HeaderTxt,
+    },
+    noData: {
+      text: 'Loading...'
+    },
+    xaxis: {
+      type: 'category',
+      tickPlacement: 'on',
+      labels: {
+        rotate: -45,
+        rotateAlways: true
+      }
+    }
+  };
+
+  chart = new ApexCharts(document.getElementById(s_TargetDiv), options);
+  chart.render();
+  return chart;
+}
+  
+
+//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------
+  function Render()
+  {
+    ChartUser = func_InitializeChart("Cost per User", 250, "TDChartUsers")
+    ChartDept = func_InitializeChart("Cost per Department", 250, "TDChartDepts")
+    x= getCostPerson(ChartUser);
+    y= getCostDept(ChartDept);
+  }
+  
+</script>
+
+<script>//func_ShowAlert('Please wait, loading count for Projects, Environments, and Flags in your environment...', true);</script>
+<script>//getCostPerson();</script>
+<script>//getCostDept();</script>
+<script>//func_ShowAlert('Done...', true);</script>
+
+</body>
+</html>

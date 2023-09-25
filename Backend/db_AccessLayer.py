@@ -14,9 +14,15 @@ import es_common
 
 global cur
 
+
+# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 def func_addquotes(char):
     x = "'{}'".format(char)
     return(x)
+
+
 
 #----------------------------------------------------------------------------------------------------------------
 #------------------ CRDB have a dedicated Tag field but UI not allowing yet to search for them ------------------
@@ -49,9 +55,9 @@ def func_SrchTables (n_Max_Cnt, s_tbl_ID, s_fld, s_crit):   #Fields = comma sepa
         x=x+1
     if (n_Max_Cnt>0):
         str_SQL.append(' limit ' + str(n_Max_Cnt))      #new
-    print(str_SQL)
+    es_common.func_Logging(str_SQL)
     str_SQL = "".join(str_SQL)
-    print(str_SQL)
+    es_common.func_Logging(str_SQL)
 
     OK = openConnection ()
     if OK == True:
@@ -68,6 +74,10 @@ def func_SrchTables (n_Max_Cnt, s_tbl_ID, s_fld, s_crit):   #Fields = comma sepa
     else:
         return False, OK
 
+
+# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 def func_RetunRowCount(s_Table):
     OK = openConnection ()
     if OK == True:
@@ -86,6 +96,9 @@ def func_RetunRowCount(s_Table):
         return False, OK
 
 
+# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 def func_ReturnRows(n_MaxCount, s_Table, s_searchStr, s_SrchFld):
     OK = openConnection ()
     if OK == True:
@@ -96,6 +109,8 @@ def func_ReturnRows(n_MaxCount, s_Table, s_searchStr, s_SrchFld):
                 s_TableFields = "s_proj_id, s_env_id, s_env_data, s_env_tags"
             case 'flags':
                 s_TableFields = "s_proj_id, s_env_id, s_flag_id, s_flag_data, s_flag_tags"
+            case 'v_costview':
+                s_TableFields = "*"
 
 
         str_SQL = "Select " + s_TableFields +" from " + s_Table
@@ -121,15 +136,27 @@ def func_ReturnRows(n_MaxCount, s_Table, s_searchStr, s_SrchFld):
 
     return 0
 
-def func_InsterFlags(s_ProjID, s_EnvID, s_FlagID, s_WriteRow):
+# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+def func_InsterFlags(s_ProjID, s_EnvID, s_FlagID, j_WriteRow):
+    s_WriteRow = json.dumps(j_WriteRow)
+    s_CreateDate = j_WriteRow['creationDate']
+    s_Creator = j_WriteRow['_maintainer']['email']
+    b_Archived = j_WriteRow['archived']
+    s_LastModified = j_WriteRow['environments'][s_EnvID]['lastModified']
     psycopg2.extras.register_uuid()
     with conn.cursor() as cur:
         s_Tags = JSONtoOBJ = json.loads(s_WriteRow)["tags"]     # extract the tags
-        cur.execute("UPSERT INTO flags (s_flag_unique_id, s_proj_id, s_env_id, s_flag_id, s_flag_data,s_flag_tags) VALUES(%s, %s, %s, %s, %s,%s)", (s_ProjID+'_'+s_EnvID+'_'+s_FlagID, s_ProjID, s_EnvID, s_FlagID, s_WriteRow, s_Tags))
+        cur.execute("UPSERT INTO flags (s_flag_unique_id, s_proj_id, s_env_id, s_flag_id, s_flag_data,s_flag_tags, s_createdate, s_creator, b_archived, s_lastmodified) VALUES(%s, %s, %s, %s, %s,%s, %s, %s, %s,%s)", (s_ProjID+'_'+s_EnvID+'_'+s_FlagID, s_ProjID, s_EnvID, s_FlagID, s_WriteRow, s_Tags, s_CreateDate, s_Creator, b_Archived, s_LastModified))
         logging.debug("InserFlags: status message: %s",cur.statusmessage)
     conn.commit()
     return cur.statusmessage
 
+
+# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 def func_InsterEnv(s_ProjID, s_EnvID, s_WriteRow):
     psycopg2.extras.register_uuid()
     with conn.cursor() as cur:
@@ -139,6 +166,9 @@ def func_InsterEnv(s_ProjID, s_EnvID, s_WriteRow):
     conn.commit()
     return cur.statusmessage
 
+# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 def func_InsterProject(s_ProjID,s_WriteRow):
     psycopg2.extras.register_uuid()
     with conn.cursor() as cur:
@@ -184,6 +214,7 @@ def openConnection():
     except Exception as e:
         logging.fatal("database connection failed")
         logging.fatal(e)
+        es_common.func_Logging("database connection failed")
         return False
 
 #-----------------------------------------------------------------------------
@@ -197,7 +228,8 @@ def closeConnection():
 #------------------------------------------------------------------------------------------------------------------
 #----------------------------------- Write the data to the CRDB ---------------------------------------------------
 #------------------------------------------------------------------------------------------------------------------
-def main(tableID,state,s_ProjID,s_EnvID,s_FlagID, s_WriteRow ): #1=open + execute, 2=execute + close**, 0=execute only  **=close in now explicit
+def main(tableID,state,s_ProjID,s_EnvID,s_FlagID, j_WriteRow ): #1=open + execute, 2=execute + close**, 0=execute only  **=close in now explicit
+    s_WriteRow = json.dumps(j_WriteRow)
     if (state == 1 or state == 3):
         openConnection()
     match tableID:
@@ -206,9 +238,9 @@ def main(tableID,state,s_ProjID,s_EnvID,s_FlagID, s_WriteRow ): #1=open + execut
         case 'environments':
             execStatus = func_InsterEnv(s_ProjID,s_EnvID,s_WriteRow)
         case 'flags':
-            execStatus = func_InsterFlags(s_ProjID,s_EnvID,s_FlagID,s_WriteRow)
+            execStatus = func_InsterFlags(s_ProjID,s_EnvID,s_FlagID,j_WriteRow)
 
-    print(tableID + ": " + execStatus)
+    es_common.func_Logging(tableID + ": " + execStatus)
     return execStatus
 
 
@@ -222,6 +254,7 @@ def parse_cmdline():
     parser.add_argument(
         "dsn",
         #default=os.environ.get("DATABASE_URL"),
+        #default="postgresql://john:FxXm44tjf2BSG1GQywmKGQ@solid-sphinx-11729.7tt.cockroachlabs.cloud:26257/LD_Search?sslmode=verify-full",
         default=es_common.s_g_db_conn,
         nargs="?",
         help="""\
@@ -234,6 +267,71 @@ database connection string\
     if opt.dsn is None:
         parser.error("database connection string not set")
     return opt
+
+
+#----------------------------------------------------------------------------------------------------------------
+#------------------ CRDB have a dedicated Tag field but UI not allowing yet to search for them ------------------
+#------------------ Version 2 planned for search tags in all tables ---------------------------------------------
+#----------------------------------------------------------------------------------------------------------------
+def func_GetCost (s_type, s_dep_id='', s_dep_name='', s_user_id=''):   #type = cost for per user or per department, id= either user id or department id or empty = all
+    str_SQL = []
+    match s_type:
+        case 'department':
+            str_SQL = 'SELECT u.department_id, d.department_name, SUM(c.cost_per_ff) AS total_cost FROM flags f  JOIN users u ON upper(f.s_creator) = upper(u.user_id)  JOIN cost c ON upper(u.department_id) = upper(c.department_id) LEFT JOIN departments d ON d.department_id = u.department_id'
+            
+            if len(s_dep_name+s_dep_id) >0:
+                if len(s_dep_id)>0: # can only have either dept ID or Name but not both
+                    str_SQL += ' where upper(u.department_id) = ' + s_dep_id.upper()
+                else:# can only have either dept ID or Name but not both
+                    str_SQL += " where upper(d.department_name) LIKE '%" + s_dep_name.upper() + "%'"
+
+            str_SQL += ' GROUP BY u.department_id, d.department_name ORDER BY d.department_name;'
+
+        case 'user':
+            str_SQL = 'SELECT u.user_id, u.department_id, d.department_name, SUM(c.cost_per_ff) AS total_cost FROM users u LEFT JOIN flags f ON u.user_id = f.s_creator JOIN cost c ON u.department_id = c.department_id JOIN departments d ON u.department_id = d.department_id'
+            if len(s_dep_name+s_user_id) >0:
+                if len(s_dep_id)>0: # can only have either dept ID or Name but not both
+                    str_SQL += " where u.department_id LIKE %'%s'% OR upper(u.user_id) = upper('%s')", (s_dep_id, s_user_id)
+                else: # can only have either dept ID or Name but not both
+                    str_SQL += " where upper(d.department_name) LIKE '%" + s_dep_name.upper() + "%' AND upper(u.user_id) LIKE upper('%" +s_user_id + "%')"
+
+            str_SQL += ' GROUP BY u.user_id, u.department_id, d.department_name ORDER BY u.user_id;'
+        
+    es_common.func_Logging(str_SQL)
+
+    OK = openConnection ()
+    if OK == True:
+        psycopg2.extras.register_uuid()
+        with conn.cursor() as cur:
+            o_returnedData = cur.execute(str_SQL)
+            es_common.func_Logging("func_GetCost: status message: %s",(cur.statusmessage),True)
+            if cur.rowcount > 0:
+                o_Records = cur.fetchall()
+                return True, o_Records
+            else:
+                s_ErrorMsg = cur.statusmessage
+                return False, s_ErrorMsg
+    else:
+        return False, OK
+    
+
+
+def updateCost(s_DeptID, s_NewCost):
+    try:
+        OK = openConnection ()
+        if OK == True:
+            psycopg2.extras.register_uuid()
+            with conn.cursor() as cur:
+                cur.execute("UPSERT INTO cost (department_id, cost_per_ff) VALUES(%s, %s)", (s_DeptID, s_NewCost))
+                logging.debug("updateCost: status message: %s",cur.statusmessage)
+            conn.commit()
+            return True, cur.statusmessage
+    except Exception as e:
+            logging.fatal("database connection failed")
+            logging.fatal(e)
+            es_common.func_Logging("database connection failed")
+            return False, e
+
 
 
 #if __name__ == "__main__":

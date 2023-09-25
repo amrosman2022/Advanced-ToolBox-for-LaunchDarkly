@@ -36,6 +36,7 @@
 
   <!-- Helpers -->
   <script src="./assets/vendor/js/helpers.js"></script>
+  <script src="./common/commonH.js"></script>
 
   
   <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
@@ -236,8 +237,8 @@
                     <p class="card-text">
                       <!-- **************** FORM *****************-->
                       <div class="input-group input-group-lg">
-                        <span class="input-group-text">Project Name</span>
-                        <input id="tfrm_projects" type="text" class="form-control" placeholder="Project Name or ID" />
+                        <span class="input-group-text">Project ID</span>
+                        <input id="tfrm_projects" type="text" class="form-control" placeholder="Project ID" value="" />
                       </div>
                       <div height="5px" style="font-size: 3px;">&nbsp; </div> <!-- spacer-->
                       <div class="input-group input-group-lg">
@@ -424,40 +425,11 @@
 <!--  ******************************* Execute and return the results to the page **********************************-->
 <!--            'http://localhost:8080/refresh|||1'       --> the name search option is not yet implemented
 <script>
-s_userID = '';
-// ----------------------------------------------
-// --------------  Check if looged in------------
-// ----------------------------------------------
-const isLoggedIn = async () => 
-  {
-      try
-      {
-          const response = await fetch('http://localhost:8080/validlogin');
-          const myJson = await response.json(); //extract TEXT from the http response
-          if (JSON.parse(myJson)['success']==true)
-          {
-            console.log('opening index.html');
-            window.open('index.html','_self');
-          }
-          else  // if user is already logged - no action needed
-          {
-            console.log(JSON.parse(myJson)['message']);
-            s_userID = JSON.parse(myJson)['userid'];
-            document.getElementById('USERID_H').innerText = s_userID;
-            return true;
-          }
-      }
-      catch(e)
-      {
-        const myJson = e.message;
-        func_ShowAlert(myJson);
-        console.log(e.message);
-        return (e);
-      }
-  }// End of isLoggedin
 
 
-
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 function validate(frm)
 {
   if (frm.value == NaN)
@@ -466,6 +438,9 @@ function validate(frm)
   }
 }
 
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
   function JSONtoArray(json_data)
   {
     var result = [];
@@ -479,7 +454,9 @@ function validate(frm)
     return result;
   }
 
-
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
   const asyncfunc_RefreshDB = async () => 
   {
       const d = new Date();

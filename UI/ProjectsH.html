@@ -41,6 +41,7 @@
 
   <!-- Helpers -->
   <script src="./assets/vendor/js/helpers.js"></script>
+  <script src="./common/commonH.js"></script> <!-- changed -->
 
   
   <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
@@ -52,38 +53,6 @@
 
 
 <script>
-s_userID = '';
-// ----------------------------------------------
-// --------------  Check if looged in------------
-// ----------------------------------------------
-const isLoggedIn = async () => 
-  {
-      try
-      {
-          const response = await fetch('http://localhost:8080/validlogin');
-          const myJson = await response.json(); //extract TEXT from the http response
-          if (JSON.parse(myJson)['success']==true)
-          {
-            console.log('opening index.html');
-            window.open('index.html','_self');
-          }
-          else  // if user is already logged - no action needed
-          {
-            console.log(JSON.parse(myJson)['message']);
-            s_userID = JSON.parse(myJson)['userid'];
-            document.getElementById('USERID_H').innerText = s_userID;
-            return true;
-          }
-      }
-      catch(e)
-      {
-        const myJson = e.message;
-        func_ShowAlert(myJson);
-        console.log(e.message);
-        return (e);
-      }
-  }// End of isLoggedin
-
 
     // ----------------------------------------------
     // --------Common function: XML to Array --------
@@ -97,62 +66,25 @@ const isLoggedIn = async () =>
     // ----------------------------------------------
     // ------------- UI: Submit List or Search ------
     // ----------------------------------------------
-    function func_selector ()
+    function func_selector (n_pageNumber=1, b_Refresh=true) // changed
     {
         bol_TabSelect = document.getElementById("navs-top-home").classList.contains('active');
         if (bol_TabSelect == true)
         {
-            getListofProj();
+            func_ListProj(n_pageNumber, b_Refresh);
         }
         else 
         {
-            getSrchProj();
+            func_SrchProj(n_pageNumber,b_Refresh);
         }
     }
 
-    // ---------------------------------------------
-    // -----UI: Show/Hide All the search Form ------
-    // ----------------------------------------------
-    function func_toggleDivState (me, s_element,)
+    // ------------------------------------------------------------------------
+    // ------------------------MAIN: List All Projects-------------------------
+    // ------------------------------------------------------------------------
+    const func_ListProj = async (n_pageNumber, b_Refresh) => 
     {
-        state = document.getElementById(s_element);
-        document.getElementById("form_search").reset();
-        if (me.id == "LAP")
-        {
-            state.style.display = "none";
-            document.getElementById("LAP").style.color="green";
-            document.getElementById("SAP").style.color="Gray";
-        }
-        else
-        {
-            state.style.display = "block";
-            document.getElementById("SAP").style.color="green";
-            document.getElementById("LAP").style.color="Gray";
-        }
-    }
-
-    // ----------------------------------------------
-    // -----------UI: Show/Hide Form Field-----------
-    // ----------------------------------------------
-    function func_toggleElementState (me, s_element)
-    {
-        state = document.getElementById(s_element);
-        if (me.checked == true)
-        {
-            state.disabled = false;
-        }
-        else
-        {
-            state.disabled = true;
-        }
-    }
-
-    // ----------------------------------------------
-    // ------------MAIN: List All Projects-----------
-    // ----------------------------------------------
-    const getListofProj = async () => 
-    {
-        // ---------- Status update ----------
+        // ********************* Status update *********************
         const d = new Date();
         let time = d.getTime();
         s_orig1 = document.getElementById("lbl_functionstat").innerText;
@@ -160,38 +92,39 @@ const isLoggedIn = async () =>
         document.getElementById("lbl_functionstat").innerText = "Function Running....";
         document.getElementById("lbl_functioninfo").innerText = "NOW, Started Retrieving Data, Please Wait....";
 
-        // ------ Start fetching the data
+        // ********************* Start fetching the data *********************
         document.getElementById('results_line2').innerHTML = '';
-        const response = await fetch('http://localhost:8080/list|||projects|||' + document.getElementById('skip_tfrm_projmax').value);
+        s_URL = 'http://localhost:8080/list|||projects|||' + document.getElementById('skip_tfrm_projmax').value + '|||' + n_pageNumber + '|||' + b_Refresh; //changed
+        const response = await fetch(s_URL); // changed
         const myJson = await response.text(); //extract TEXT from the http response
         //document.getElementById('ProjList').innerHTML += myJson;
 
-        //-------------------------------------------------------------------
-        // ---------------- Convert the JSON to JS Array --------------------
-        //-------------------------------------------------------------------
+        // ********************* Convert the JSON to JS Array *********************
         myArray = convertXmlToArray(myJson);
-        //--------------------------------------------------------------------------------
-        // - Call the function to write the JS Array into a HTML Table and insert on page -
-        //---------------------------------------------------------------------------------
+      
+        // -*********************Call the function to write the JS Array into a HTML Table and insert on page *********************
         var tableGen = new ArrayToTable();
         tableGen.tableclasses = 'bluetable table-with-oddeven';
         tableGen.tableid = 'tbl_projlist';
         tableGen.replaceRules = {"s_proj_id":"Project ID", "s_proj_data":"Project JSON Details", "s_proj_tags":"Tags"}
         tableGen.putTableHtmlToId(myArray, 'results_line2', 's_proj_id, s_proj_tags');
+        getTableInfo(n_pageNumber);   // changed Get the table pagination info and display the page numbers boxes
 
-        // ---------- Status update ----------
+        // ********************* Status update *********************
         const d2 = new Date();
         let time2 = d2.getTime();
         tdiff = time2-time;
         s_tdiff = tdiff.toLocaleString("en-US")
         document.getElementById("lbl_functionstat").innerText = s_orig1;
         document.getElementById("lbl_functioninfo").innerText = "Function execution succeeded, running for " + s_tdiff + " milliseconds...";
-    }
+    } // -------------->>>>>>> End of func_ListProj
 
-    // ----------------------------------------------
-    // ----------MAIN: Search All Projects-----------
-    // ----------------------------------------------
-    const getSrchProj = async () => 
+
+
+    // ------------------------------------------------------------------------
+    // ---------------------------------- MAIN: Search All Projects -----------
+    // ------------------------------------------------------------------------
+    const func_SrchProj = async (n_pageNumber, b_Refresh) => // changed 
     {
         const forms = document.querySelectorAll('form');
         const form = forms[1];
@@ -201,7 +134,7 @@ const isLoggedIn = async () =>
         cnt = 0;
 
 
-        // ---------- Status update ----------
+        // ********************* Status update *********************
         const d = new Date();
         let time = d.getTime();
         s_orig1 = document.getElementById("lbl_functionstat").innerText;
@@ -209,14 +142,9 @@ const isLoggedIn = async () =>
         document.getElementById("lbl_functionstat").innerText = "Function Running....";
         document.getElementById("lbl_functioninfo").innerText = "NOW, Started Retrieving Data, Please Wait....";
 
-
-        //---------------------------------------------------------
-        //---------------------------------------------------------
         document.getElementById('results_line2').innerHTML = '';
 
-        //-----------------------------------------------------------------------------
-        // ------ Cycle through the form fields and Create the URL search  ------------
-        //-----------------------------------------------------------------------------
+        // ********************* Cycle through the form fields and Create the URL search  *********************
         Array.from(forms[0].elements).forEach((input) => 
         {
             if (input.type == 'text' || input.type == 'select-one')
@@ -262,45 +190,40 @@ const isLoggedIn = async () =>
               }
             }
         });
-        //-----------------------------------------------------------------------------
-        // ------------ Execute the search URL and return an JSON Array ---------------
-        //-----------------------------------------------------------------------------
 
-        s_URL = 'http://localhost:8080/search|||projects' + '|||' + document.getElementById('skip_tfrm_projmax2').value + '|||' + s_srchStr + '|||' + s_srchVal;
+        // ********************* Execute the search URL and return an JSON Array ********************
+        s_URL = 'http://localhost:8080/search|||projects' + '|||' + document.getElementById('skip_tfrm_projmax2').value + '|||' + s_srchStr + '|||' + s_srchVal + '|||' + n_pageNumber + '|||' + b_Refresh; //Changed
        
         const response = await fetch(s_URL);
         const myJson = await response.text() // .text(); //extract TEXT from the http response
 
-        //-------------------------------------------------------------------
-        // ---------------- Convert the JSON to JS Array --------------------
-        //-------------------------------------------------------------------
+        // ********************* Convert the JSON to JS Array *********************
         myArray = convertXmlToArray(myJson);
-        //var JSONobj = JSON.parse(myArray[0]['s_proj_data']);
-        //html_Output = formatJsonToHtml(JSONobj);
-        //--------------------------------------------------------------------------------
-        // - Call the function to write the JS Array into a HTML Table and insert on page -
-        //---------------------------------------------------------------------------------
+
+        //*********************- Call the function to write the JS Array into a HTML Table and insert on page *********************-
         var tableGen = new ArrayToTable();
         tableGen.replaceRules = {"s_proj_id":"Project ID", "s_proj_data":"Project JSON Details", "s_proj_tags":"Tags"}
         tableGen.tableclasses = 'bluetable table-with-oddeven';
         tableGen.tableid = 'something-unique';
-        //var tableGen = new ArrayToTable();
         tableGen.putTableHtmlToId(myArray, 'results_line2','s_proj_id, s_proj_tags');
+        getTableInfo(n_pageNumber);   // changed Get the table pagination info and display the page numbers boxes
 
-        // ---------- Status update ----------
+        // ********************* Status update *********************
         const d2 = new Date();
         let time2 = d2.getTime();
         tdiff = time2-time;
         s_tdiff = tdiff.toLocaleString("en-US")
         document.getElementById("lbl_functionstat").innerText = s_orig1;
         document.getElementById("lbl_functioninfo").innerText = "Function execution succeeded, running for " + s_tdiff + " milliseconds...";
-    }
-// *********************************************************************************************************
-</script>
-<!--// ** //-->
-<body onload="isLoggedIn();">
+    } // -------------------->>>>>>>>> End of func_SrchProj
 
-  <!-- ********************************* Right Slider to show details ***************************-->
+    // *********************************************************************************************************
+</script>
+
+
+
+<body onload="isLoggedIn();">
+<!-- ********************************* Right Slider to show details ***************************-->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEnd" aria-labelledby="offcanvasEndLabel">
   <div class="offcanvas-header">
     <h5 id="offcanvasEndLabel" class="offcanvas-title">JSON Details</h5>
@@ -311,9 +234,6 @@ const isLoggedIn = async () =>
     <button type="button" class="btn btn-primary mb-2 d-grid w-100" data-bs-dismiss="offcanvas">Cancel</button>
   </div>
 </div>
-<!-- ************************************************************************************-->
-
-
 
 <!-- ********************************* Layout wrapper ********************************* -->
 <div class="layout-wrapper layout-content-navbar">
@@ -522,7 +442,7 @@ const isLoggedIn = async () =>
                             
                             <div class="input-group mb-3">
                               <div class="input-group-text">
-                                <input id="skip_key" class="form-check-input mt-0" type="checkbox" checked value="checked" onchange="func_toggleElementState(this,'key')">
+                                <input id="skip_key" class="form-check-input mt-0" type="checkbox" onchange="func_toggleElementState(this,'key')">
                               </div>
                               <span class="input-group-text"> Project ID </span>
                               <input type="text" class="form-control" id="key">
@@ -530,7 +450,7 @@ const isLoggedIn = async () =>
 
                             <div class="input-group mb-3">
                               <div class="input-group-text">
-                                <input id="skip_includeInSnippetByDefault" class="form-check-input mt-0" type="checkbox" checked value="checked" checked onchange="func_toggleElementState(this,'includeInSnippetByDefault');">
+                                <input id="skip_includeInSnippetByDefault" class="form-check-input mt-0" type="checkbox" onchange="func_toggleElementState(this,'includeInSnippetByDefault');">
                               </div>
                               <select class="form-select" id="includeInSnippetByDefault">
                                 <option value="true">Flag Performance Enabled</option>
@@ -540,7 +460,7 @@ const isLoggedIn = async () =>
 
                             <div class="input-group mb-3">
                               <div class="input-group-text">
-                                <input id="skip_usingMobileKey" class="form-check-input mt-0" type="checkbox" checked value="checked" checked onchange="func_toggleElementState(this,'usingMobileKey');">
+                                <input id="skip_usingMobileKey" class="form-check-input mt-0" type="checkbox" onchange="func_toggleElementState(this,'usingMobileKey');">
                               </div>
                               <select class="form-select" id="usingMobileKey">
                                 <option value="true">Mobile SDK Enabled</option>
@@ -550,7 +470,7 @@ const isLoggedIn = async () =>
 
                             <div class="input-group mb-3">
                               <div class="input-group-text">
-                                <input id="skip_usingEnvironmentId" class="form-check-input mt-0" type="checkbox" checked value="checked" checked onchange="func_toggleElementState(this,'usingEnvironmentId');">
+                                <input id="skip_usingEnvironmentId" class="form-check-input mt-0" type="checkbox" onchange="func_toggleElementState(this,'usingEnvironmentId');">
                               </div>
                               <select class="form-select" id="usingEnvironmentId">
                                 <option value="true">Available for Client-side Enabled</option>
@@ -610,6 +530,11 @@ const isLoggedIn = async () =>
                 <p id="lbl_functioninfo" id="results_line1" class="card-text">Click the START button to begin..</p>
                 <p id="results_line2" class="card-text">
                   <!-- **************************** Results *************************************** -->
+                  
+                  <!-- **************************************************************************** -->
+                </p>
+                <p id="results_line3" class="card-text">
+                  <!-- **************************** Changed . Pagination ************************** -->
                   
                   <!-- **************************************************************************** -->
                 </p>

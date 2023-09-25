@@ -36,6 +36,7 @@
 
   <!-- Helpers -->
   <script src="./assets/vendor/js/helpers.js"></script>
+  <script src="./common/commonH.js"></script>
 
   
   <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
@@ -43,40 +44,6 @@
 
 </head>
 
-<Script>
-s_userID = '';
-// ----------------------------------------------
-// --------------  Check if looged in------------
-// ----------------------------------------------
-const isLoggedIn = async () => 
-  {
-      try
-      {
-          const response = await fetch('http://localhost:8080/validlogin');
-          const myJson = await response.json(); //extract TEXT from the http response
-          if (JSON.parse(myJson)['success']==true)
-          {
-            console.log('opening index.html');
-            window.open('index.html','_self');
-          }
-          else  // if user is already logged - no action needed
-          {
-            console.log(JSON.parse(myJson)['message']);
-            s_userID = JSON.parse(myJson)['userid'];
-            document.getElementById('USERID_H').innerText = s_userID;
-            return true;
-          }
-      }
-      catch(e)
-      {
-        const myJson = e.message;
-        func_ShowAlert(myJson);
-        console.log(e.message);
-        return (e);
-      }
-  }// End of isLoggedin
-  
-</Script>
 
 <body onload="isLoggedIn();">
 
@@ -245,9 +212,10 @@ const isLoggedIn = async () =>
         <!-- Content -->
         <div class="container-xxl flex-grow-1 container-p-y">
           <h4 class="fw-bold py-3 mb-4">Source Code</h4>
-            
+          <a href="https://github.com/amrosman2022/Advanced-Search-for-LaunchDarkly" target="_blank"><img title="GitHub Repo" width="70%" height="70%" src="./assets/img/illustrations/GitHubRepo.png"></a>
           </p>
         </div>
+        
         <!--/ Content -->
 
         <!-- Messages DIV-->

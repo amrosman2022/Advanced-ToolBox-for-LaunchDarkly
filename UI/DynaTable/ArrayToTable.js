@@ -94,6 +94,8 @@ ArrayToTable.prototype.getHtmlForArray = function(dataArray, skipfields) {
 //------------------------------------------------------------------ 
 //--------show the JSON Pop Modal and copy the TD LI's into it ------
 //------------------------------------------------------------------ 
+//show and hide of the pop-out slider is controlled by the ARIA tags on the clickable elements data-bs-toggle="offcanvas" data-bs-target="#offcanvasEnd" aria-controls="offcanvasEnd"
+//------------------------------------------------------------------
 function func_ExpanDiv(obj_ID, n_TrNum)     // n_TrNum = not implemented yet
 {
     var html_ParentContent = obj_ID.parentNode.innerHTML;

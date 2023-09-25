@@ -36,7 +36,6 @@ def get_all_environments(api_key,s_projKey, n_envCnt):
 
 def main_all_environments(api_key, s_projKey, n_envCnt):
     # Replace 'YOUR_API_KEY' with your actual LaunchDarkly API key
-    #api_key = 'api-xxxxx' #name
     global envSaved
     global envFailed
     Environments = get_all_environments(api_key, s_projKey, n_envCnt)
@@ -48,7 +47,7 @@ def main_all_environments(api_key, s_projKey, n_envCnt):
         if (key == 'items'):
             for environment in value:
                 flip_state = 0    
-                envResults = db_AccessLayer.main('environments',flip_state,s_projKey,environment["key"],'',json.dumps(environment))
+                envResults = db_AccessLayer.main('environments',flip_state,s_projKey,environment["key"],'',environment)
                 if (envResults == 'INSERT 0 1'):
                     envSaved += 1
                 else:
