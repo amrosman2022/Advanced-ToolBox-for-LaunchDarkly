@@ -22,3 +22,8 @@ Database is SaaS CRDB instance<br>
   <LI>please make sure you have installed locally (PIP3 ....) all the python libraries used in the backend</LI> 
 </UL>
 
+<H2>Dependencies</H2>
+<UL>
+  <LI><B>Python Data Access Library:</B> https://www.psycopg.org/docs/index.html</LI>
+  <LI><B>JS UI Library: </B></LI>
+</UL>
