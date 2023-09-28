@@ -25,5 +25,5 @@ Database: SaaS CRDB instance<br>
 <H2>Dependencies</H2>
 <UL>
   <LI><B>Python Data Access Library:</B> https://www.psycopg.org/docs/index.html</LI>
-  <LI><B>JS UI Library: </B></LI>
+  <LI><B>JS UI Library: </B>https://demos.themeselection.com/sneat-bootstrap-html-admin-template/documentation/index.html</LI>
 </UL>
