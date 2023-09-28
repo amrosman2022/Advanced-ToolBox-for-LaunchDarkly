@@ -7,9 +7,9 @@ I have create a video with the UI flow @"Adv Srch for LaunchDarkly quick overvie
 
 
 <h2> Technology</h2><br>
-Backend is built on Python 3.x<br>
-Frontend is build on JS<br>
-Database is SaaS CRDB instance<br>
+Backend: built on Python 3.x<br>
+Frontend: build on JS<br>
+Database: SaaS CRDB instance<br>
 
 <H2>Entry points for the project</H2>
 "Python3 es_main.py" is the entry point for the backend<br>
