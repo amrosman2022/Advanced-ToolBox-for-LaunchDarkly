@@ -158,7 +158,7 @@ class Adv_Srch(Resource):
                 s_OutputTxt = out_generateOutput.saveCostSetting(inputs_list[1].strip(), inputs_list[2].strip())
                 if (s_OutputTxt[0] == True):
                     s_OutputTxt = 200
-            case 'copyld':  # REMOVE target-project-id = api-f99f586a-c618-4cb8-a827-385f8707b4c3[personal] {http://localhost:8080/copyld%7C%7C%7Capi-f99f586a-c618-4cb8-a827-385f8707b4c3%7C%7C%7C}
+            case 'copyld': 
                 s_OutputTxt = out_generateOutput.saveLD(inputs_list[1].strip(),inputs_list[2].strip(),inputs_list[3].strip())
                 x=1
             case other:
