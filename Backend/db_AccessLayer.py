@@ -370,13 +370,14 @@ def func_WriteStatus(n_type, a_Inputs):
         return False, "func_WriteStatus: " + status +" @" + n_type
     
     psycopg2.extras.register_uuid()
-    a_Inputs = str(a_Inputs)
+    
     with conn.cursor() as cur:
         d_TheDate = date.today().strftime('%Y-%m-%d')
         match n_type:
             case 1:
                 s_SQLStr = "INSERT INTO logs (i_op_type, i_projects, i_environments, i_flags, d_update_date, s_general_log) VALUES(%s, %s, %s, %s, '%s', '')" %(n_type, a_Inputs[0], a_Inputs[1], a_Inputs[2], d_TheDate)
             case 2:
+                a_Inputs = str(a_Inputs)
                 a_Inputs = a_Inputs.replace('\'','')
                 a_Inputs = a_Inputs.replace('}','')
                 a_Inputs = a_Inputs.replace('{','')

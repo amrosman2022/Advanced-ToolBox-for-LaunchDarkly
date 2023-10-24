@@ -61,7 +61,7 @@ def func_main_get_all_projects(api_key, s_ProjID, n_ffCnt):     # n_ffCnt--> 0 =
         if (key == 'items'):
             for project in value:
                 x=x+1
-                es_common.func_Logging(x + '-->' + project)
+                es_common.func_Logging(str(x) + '-->' + str(project))
 
                 # control the DB state ||  #1=open+execute, 2=execute+close, 3=open+exec+close, 0=execute only
                 if (len(value)==1):

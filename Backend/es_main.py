@@ -158,7 +158,7 @@ class Adv_Srch(Resource):
                 s_OutputTxt = out_generateOutput.saveCostSetting(inputs_list[1].strip(), inputs_list[2].strip())
                 if (s_OutputTxt[0] == True):
                     s_OutputTxt = 200
-            case 'copyld': 
+            case 'copyld':  
                 s_OutputTxt = out_generateOutput.saveLD(inputs_list[1].strip(),inputs_list[2].strip(),inputs_list[3].strip())
                 x=1
             case other:

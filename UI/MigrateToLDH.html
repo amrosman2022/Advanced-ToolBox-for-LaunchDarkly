@@ -414,14 +414,16 @@ const getFlagCnt = async () =>
       s_EnvNames = document.getElementById("tfrm_envs").value;
 
       // Validate with user
-      n_runtime = g_FlagsCnt / 60 * 2; // estimate 2 seconds per 1-flag copy
-      n_runtime = Math.round(n_runtime)
-      var strconfirm = confirm("The copy process can run for " + n_runtime + " minutes. \n Are you sure you want to continue?");
-      if (strconfirm == false)
+      if (document.getElementById('tfrm_projects').value == '')
       {
-        return(0);
+        n_runtime = g_FlagsCnt / 60 * 2; // estimate 2 seconds per 1-flag copy
+        n_runtime = Math.round(n_runtime)
+        var strconfirm = confirm("The copy process can run for " + n_runtime + " minutes. \n Are you sure you want to continue?");
+        if (strconfirm == false)
+        {
+          return(0);
+        }
       }
-      
 
       const d = new Date();
       let time = d.getTime();
