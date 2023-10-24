@@ -6,6 +6,7 @@ import uuid
 from argparse import ArgumentParser, RawTextHelpFormatter
 import json 
 from datetime import date
+import requests
 
 import psycopg2
 from psycopg2.errors import SerializationFailure
@@ -14,6 +15,185 @@ import es_common
 
 global cur
 
+#----------------------------------------------------------------------------------------------------------------
+#------------------------------------------Internal Function-----------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------
+def func_writeFFRecordsToLD(o_Records, TargetEnvID): 
+
+    RecsWritten = 0
+
+    for record in o_Records:
+        url = "https://app.launchdarkly.com/api/v2/flags/" + record['s_proj_id']
+        payload = json.loads(record['s_flag_data'])
+        payload.__delitem__('includeInSnippet')    # deleted to prevent error, cannot exist with other parameters.
+        headers = {
+        "Content-Type": "application/json",
+        "Authorization": TargetEnvID
+        }
+
+        # write to destination LD Subscription
+        # sleep than repeat API call if rate_limit is reached 
+        retries = 0
+        while retries < 2: 
+            response = requests.post(url, json=payload, headers=headers)
+            # if the record not written to LD
+            if response.ok == False:    #if failed
+                if response.status_code == 429: #if rate reached
+                    sleep_time = 3 ** retries
+                    time.sleep(sleep_time)
+                    retries += 1
+                else:
+                    retries = 3
+                # write error to logs
+                es_common.func_Logging(response.text)
+                s_Status = payload['key'] + "|||" + str(response.elapsed) + "|||" + response.text + "|||retries:" + str(retries)
+                # Write the error to the DB that prevented from adding new record to LD
+                response = func_WriteStatus(2,s_Status)
+            else:
+                RecsWritten += 1
+                retries = 3
+
+    if RecsWritten > 0 and RecsWritten < len(o_Records):
+        return True, {"function":"func_writeFFRecordsToLD", "error message": "Partial records written", "system message": "", "count": str(RecsWritten) + "/" + str(len(o_Records))}
+    elif RecsWritten == 0:
+        return False, {"function":"func_writeFFRecordsToLD", "error message": "No records written", "system message": "", "count": str(RecsWritten) + "/" + str(len(o_Records))}
+    else:
+        return True, {"function":"func_writeFFRecordsToLD", "error message": "All records written", "system message": "", "count": str(RecsWritten) + "/" + str(len(o_Records))}
+    
+
+
+
+#----------------------------------------------------------------------------------------------------------------
+#------------------------------------------Internal Function-----------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------
+def func_writeEnvRecordsToLD(o_Records, TargetEnvID): 
+
+    RecsWritten = 0
+
+    for record in o_Records:
+        url = "https://app.launchdarkly.com/api/v2/projects/" + record['s_proj_id'] + "/environments"
+        payload = json.loads(record['s_env_data'])
+        #payload.__delitem__('includeInSnippetByDefault')    # deleted to prevent error, cannot exist with other parameters.
+        headers = {
+        "Content-Type": "application/json",
+        "Authorization": TargetEnvID
+        }
+
+        # write to destination LD Subscription
+        response = requests.post(url, json=payload, headers=headers)
+        # if the record not written to LD
+        if response.ok == False:
+            es_common.func_Logging(response.text)
+            s_Status = payload['key'] + "|||" + str(response.elapsed) + "|||" + response.text
+            # Write the error to the DB that prevented from adding new record to LD
+            response = func_WriteStatus(2,s_Status)
+        else:
+            RecsWritten += 1
+
+    if RecsWritten > 0 and RecsWritten < len(o_Records):
+        return True, {"function":"func_writeEnvRecordsToLD", "error message": "Partial records written", "system message": "", "count": str(RecsWritten) + "/" + str(len(o_Records))}
+    elif RecsWritten == 0:
+        return False, {"function":"func_writeEnvRecordsToLD", "error message": "No records written", "system message": "", "count": str(RecsWritten) + "/" + str(len(o_Records))}
+    else:
+        return True, {"function":"func_writeEnvRecordsToLD", "error message": "All records written", "system message": "", "count": str(RecsWritten) + "/" + str(len(o_Records))}
+    
+
+#----------------------------------------------------------------------------------------------------------------
+#------------------------------------------Internal Function-----------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------
+def func_writeProjectRecordsToLD(o_Records, TargetEnvID): 
+
+    url = "https://app.launchdarkly.com/api/v2/projects"
+    RecsWritten = 0
+
+    for record in o_Records:
+        payload = json.loads(record['s_proj_data'])
+        payload.__delitem__('includeInSnippetByDefault')    # deleted to prevent error, cannot exist with other parameters.
+        headers = {
+        "Content-Type": "application/json",
+        "Authorization": TargetEnvID
+        }
+
+        # write to destination LD Subscription
+        response = requests.post(url, json=payload, headers=headers)
+        # if the record not written to LD
+        if response.ok == False:
+            es_common.func_Logging(response.text)
+            s_Status = payload['key'] + "|||" + str(response.elapsed) + "|||" + response.text
+            # Write the error to the DB that prevented from adding new record to LD
+            response = func_WriteStatus(2,s_Status)
+        else:
+            RecsWritten += 1
+
+    if RecsWritten > 0 and RecsWritten < len(o_Records):
+        return True, {"function":"func_writeProjectRecordsToLD", "error message": "Partial records written", "system message": "", "count": str(RecsWritten) + "/" + str(len(o_Records))}
+    elif RecsWritten == 0:
+        return False, {"function":"func_writeProjectRecordsToLD", "error message": "No records written", "system message": "", "count": str(RecsWritten) + "/" + str(len(o_Records))}
+    else:
+        return True, {"function":"func_writeProjectRecordsToLD", "error message": "All records written", "system message": "", "count": str(RecsWritten) + "/" + str(len(o_Records))}
+    
+         
+
+#----------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------
+def CopyLDtoNew (s_TargetEnvID, s_projID, s_envID):    #s_projID=thee project to use in the SELECT, s_TargetEnvID=the LD subscription to use as target for writing data
+    str_SQL = []
+    o_a_Statuses = []
+    x=0
+    s_subSQLe = ""
+    s_subSQLf = ""
+    if (len(s_projID) > 0):
+        s_subSQLe +=  "WHERE environments.s_proj_id like '%" + s_projID.lower() + "%'"
+        s_subSQLf +=  "WHERE flags.s_proj_id = '" + s_projID.lower() + "'"
+        if (len(s_envID) > 0):
+            s_subSQLe += " and environments.s_env_id like '%" + s_envID.lower() + "%'"
+            s_subSQLf += " and flags.s_env_id = '" + s_envID.lower() + "'"
+
+        str_SQL.append ("SELECT projects.s_proj_id, projects.s_proj_data from projects WHERE projects.s_proj_id like '%" + s_projID.lower() + "%'")
+        str_SQL.append ("SELECT environments.s_env_id, environments.s_proj_id, environments.s_env_data from environments " + s_subSQLe)
+        str_SQL.append ("SELECT flags.s_flag_id, flags.s_proj_id, flags.s_flag_data from flags " + s_subSQLf)
+        #str_SQL.append ("SELECT environments.s_env_id, environments.s_proj_id, environments.s_env_data from environments WHERE environments.s_proj_id like '%" + s_projID.lower() + "%'")
+        #str_SQL.append ("SELECT flags.s_flag_id, flags.s_proj_id, flags.s_flag_data from flags WHERE flags.s_proj_id like '%"+ s_projID.lower() + "%'")
+    else:
+        str_SQL.append ("SELECT projects.s_proj_id, projects.s_proj_data from projects")
+        str_SQL.append ("SELECT environments.s_env_id, environments.s_proj_id, environments.s_env_data from environments")
+        str_SQL.append ("SELECT flags.s_flag_id, flags.s_proj_id, flags.s_flag_data from flags")
+        
+    OK = openConnection ()
+    if OK == True:
+        psycopg2.extras.register_uuid()
+        for SQLLine in str_SQL: 
+            with conn.cursor() as cur:
+                o_returnedData = cur.execute(SQLLine)
+                es_common.func_Logging("ReturnRows: status message: " + cur.statusmessage)
+                if cur.rowcount > 0:
+                    o_Records = cur.fetchall()
+                    if x==0:
+                        o_StatusP = func_writeProjectRecordsToLD(o_Records, s_TargetEnvID)
+                        o_a_Statuses.append(o_StatusP)
+                    elif x==1:
+                        o_StatusE = func_writeEnvRecordsToLD(o_Records, s_TargetEnvID)
+                        o_a_Statuses.append(o_StatusE)
+                    else:
+                        o_StatusF = func_writeFFRecordsToLD(o_Records, s_TargetEnvID)
+                        o_a_Statuses.append(o_StatusF)
+                else:
+                    s_ErrorMsg = cur.statusmessage
+                    s_Status = {"function":"CopyLDtoNew", "error message": "no DB rows returned...", "system message": s_ErrorMsg, "error id": "-100"} #-100 is SQL error
+                    response = func_WriteStatus(2,s_Status)
+                    return False, s_Status
+            x+=1
+    else:
+        s_Status = {"function":"CopyLDtoNew", "error message": "DB Connection failed to open...", "system message": "NA" , "error id": "-101"} #-101 is DB error
+        response = func_WriteStatus(2,s_Status)
+        return False, s_Status
+    
+    return True, o_a_Statuses
 
 # ---------------------------------------------------------------------
 # ---------------------------------------------------------------------
@@ -64,7 +244,7 @@ def func_SrchTables (n_Max_Cnt, s_tbl_ID, s_fld, s_crit):   #Fields = comma sepa
         psycopg2.extras.register_uuid()
         with conn.cursor() as cur:
             o_returnedData = cur.execute(str_SQL)
-            logging.debug("ReturnRows: status message: %s",cur.statusmessage)
+            es_common.func_Logging("ReturnRows: status message: " + cur.statusmessage)
             if cur.rowcount > 0:
                 o_Records = cur.fetchall()
                 return True, o_Records
@@ -190,10 +370,26 @@ def func_WriteStatus(n_type, a_Inputs):
         return False, "func_WriteStatus: " + status +" @" + n_type
     
     psycopg2.extras.register_uuid()
+    a_Inputs = str(a_Inputs)
     with conn.cursor() as cur:
         d_TheDate = date.today().strftime('%Y-%m-%d')
-        cur.execute("INSERT INTO logs (i_op_type, i_projects, i_environments, i_flags, d_update_date) VALUES(%s, %s, %s, %s, %s)", (n_type, a_Inputs[0], a_Inputs[1], a_Inputs[2], d_TheDate))
-        logging.debug("InsertProject: status message: %s",cur.statusmessage)
+        match n_type:
+            case 1:
+                s_SQLStr = "INSERT INTO logs (i_op_type, i_projects, i_environments, i_flags, d_update_date, s_general_log) VALUES(%s, %s, %s, %s, '%s', '')" %(n_type, a_Inputs[0], a_Inputs[1], a_Inputs[2], d_TheDate)
+            case 2:
+                a_Inputs = a_Inputs.replace('\'','')
+                a_Inputs = a_Inputs.replace('}','')
+                a_Inputs = a_Inputs.replace('{','')
+                a_Inputs = a_Inputs.replace('\\','')
+                a_Inputs = a_Inputs.replace('"','')
+                s_SQLStr = "INSERT INTO logs (i_op_type, i_projects, i_environments, i_flags, d_update_date, s_general_log) VALUES(%s, 0, 0, 0, '%s', '%s')" %(n_type, d_TheDate, a_Inputs)
+                
+        try:
+            o_response = cur.execute(s_SQLStr)
+        except: 
+            es_common.func_Logging(o_response)
+
+        es_common.func_Logging("InsertProject: status message:" + cur.statusmessage,True, 0)
     conn.commit()
     return True, cur.statusmessage
 
@@ -315,7 +511,10 @@ def func_GetCost (s_type, s_dep_id='', s_dep_name='', s_user_id=''):   #type = c
         return False, OK
     
 
-
+#----------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------
 def updateCost(s_DeptID, s_NewCost):
     try:
         OK = openConnection ()

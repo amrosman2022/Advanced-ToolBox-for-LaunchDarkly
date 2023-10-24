@@ -2,6 +2,7 @@ import json
 import os
 import logging
 
+
 global s_g_db_conn
 global s_g_api_key
 global s_g_user_id 
@@ -12,6 +13,8 @@ global o_g_dataSetPagination
 global n_g_tablePageSize
 global n_g_paginationCnt
 global o_g_costRowQueryResults
+
+
 
 
 #--------------------------------------------------------------------------------

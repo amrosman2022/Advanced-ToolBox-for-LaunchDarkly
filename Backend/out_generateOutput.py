@@ -4,6 +4,24 @@ import es_common
 import decimal
 
 #--------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------
+def saveLD (s_TargetEnvID, s_projID, s_envID):
+    s_HTML = '<div class="card"><h5 class="card-header">Migration Results</h5><div class="table-responsive"><TABLE class="table table-striped"><THead><TR><TH>TYPE</TH><TH>Status</TH><TH>RECORDS SAVED/TOTAL</TH></TR></THead><TBODY>'
+    n_Status = db.CopyLDtoNew(s_TargetEnvID,s_projID, s_envID)
+    if n_Status[0] == True:
+        s_HTML += "<TR><TD>Projects</TD><TD>%s</TD><TD>%s</TD></TR>" %(n_Status[1][0][1]['error message'],n_Status[1][0][1]['count'])
+        s_HTML += "<TR><TD>Environment</TD><TD>%s</TD><TD>%s</TD></TR>" %(n_Status[1][1][1]['error message'],n_Status[1][1][1]['count'])
+        s_HTML += "<TR><TD>Flags</TD><TD>%s</TD><TD>%s</TD></TR>" %(n_Status[1][2][1]['error message'],n_Status[1][2][1]['count'])
+        s_HTML += "</TBODY></TABLE></DIV></DIV>"
+        return {"status": "True", "data": s_HTML}
+    else:
+        return {"status" : "False", "data": '<div class="card"><h5 class="card-header">Migration Results</h5>Please check error logs table for more details...</div>', "error id":n_Status[1]['error id'], "error message": n_Status[1]['error message']}
+                
+
+
+#--------------------------------------------------------------------------------------------
 #----------------------- Main: Search a table and return the Python List --------------------------
 #---------------------------- Maximum rows as per global variable ---------------------------
 #--------------------------------------------------------------------------------------------
