@@ -7,7 +7,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
 
-  <title>LD AdvSrch</title>
+  <title>ToolBox4LD</title>
 
   <meta name="description" content="" />
 
@@ -36,6 +36,7 @@
 
   <!-- Helpers -->
   <script src="./assets/vendor/js/helpers.js"></script>
+  <script src="./common/commonH.js"></script>
 
   
   <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
@@ -48,92 +49,45 @@
 var s_srchPairs = '';
 var bol_idChanged = false;
 var bol_formSaved = false;
-s_userID = '';
-
-// ----------------------------------------------
-// --------------  Check if looged in------------
-// ----------------------------------------------
-const isLoggedIn = async () => 
-  {
-      try
-      {
-          const response = await fetch('http://localhost:8080/validlogin');
-          const myJson = await response.json(); //extract TEXT from the http response
-          if (JSON.parse(myJson)['success']==true)
-          {
-            console.log('opening index.html');
-            window.open('index.html','_self');
-          }
-          else  // if user is already logged - no action needed
-          {
-            console.log(JSON.parse(myJson)['message']);
-            s_userID = JSON.parse(myJson)['userid'];
-            document.getElementById('USERID_H').innerText = s_userID;
-            return true;
-          }
-      }
-      catch(e)
-      {
-        const myJson = e.message;
-        func_ShowAlert(myJson);
-        console.log(e.message);
-        return (e);
-      }
-  }// End of isLoggedin
-
+var bol_formCostChanged = false;
 
 //-----------------------------------------------------------
 //-----------------------------------------------------------
 //-----------------------------------------------------------
 function func_regexFind(s_srcText,n_mode, str_updateObj='')
 {
-// Regular expression to match text between "//" and ":"
-switch (n_mode)
-{
-  case 1:
-    var regex = /\/\/(.*?):/g;
-    break;
-  case 2:
-    var regex = /:(.*?@)/g;
-    break;
-}
-
-var matches = s_srcText.match(regex);
-if (matches) {
-    for (var i = 0; i < matches.length; i++) {
-        var match = matches[i];
-        // Remove "//" and ":" from the match
-        (n_mode==2)?extractedText=match.split(':')[2].substring(match.split(':')[2].length-1,0):match;
-        (n_mode==1)?extractedText = match.slice(2, -1): match ;
-        console.log(extractedText);
-        if (str_updateObj.length>0)
-        {
-          document.getElementById(str_updateObj).value = extractedText;
-        }
-        return extractedText;
-    }
-} else {
-    func_ShowAlert("DB Connection does not contain user name and password. Please validate DB Connection format.",true);
-    return '';
-}
-
-}
-
-function func_ShowAlert(s_Message='', b_visibility=false)
-{
-  if (b_visibility == true)
+  // Regular expression to match text between "//" and ":"
+  switch (n_mode)
   {
-    document.getElementById('divStatus').style.visibility = 'visible';
-    document.getElementById('divStatusText').innerText = s_Message;
-    setTimeout(func_ShowAlert, 3000); // Call hideElement after 3 seconds
+    case 1:
+      var regex = /\/\/(.*?):/g;
+      break;
+    case 2:
+      var regex = /:(.*?@)/g;
+      break;
   }
-  else
-  {
-    document.getElementById('divStatus').style.visibility = 'hidden';
-    document.getElementById('divStatusText').innerText = '';
+
+  var matches = s_srcText.match(regex);
+  if (matches) {
+      for (var i = 0; i < matches.length; i++) {
+          var match = matches[i];
+          // Remove "//" and ":" from the match
+          (n_mode==2)?extractedText=match.split(':')[2].substring(match.split(':')[2].length-1,0):match;
+          (n_mode==1)?extractedText = match.slice(2, -1): match ;
+          console.log(extractedText);
+          if (str_updateObj.length>0)
+          {
+            document.getElementById(str_updateObj).value = extractedText;
+          }
+          return extractedText;
+      }
+  } else {
+      func_ShowAlert("DB Connection does not contain user name and password. Please validate DB Connection format.",true);
+      return '';
   }
-  
+
 }
+
 
 //-----------------------------------------------------------
 //-----------Read the values from the Settings File----------
@@ -165,12 +119,97 @@ const func_LoadValues = async () =>
       }
       catch
       {
-        func_ShowAlert('Server not Running, Please Start the Python Advanced Search Server...', true);
+        func_ShowAlert('Server not Running, Please Start the Python Advanced ToolBox Server...', true);
       }
-    
+}
+
+//---------------------------------------------------------------------
+//-----------Read the values from the Settings Table in the DB --------
+//---------------------------------------------------------------------
+const func_LoadCost = async () => 
+{
+    // ------ Start fetching the data
+    try
+      {
+        const response = await fetch('http://localhost:8080/costsettings');
+        const myJson = await response.json(); //extract TEXT from the http response
+        if (myJson[0]==true)
+        outHTML = '<table class="table table-striped "><thead><tr><th>Department ID</th><th>Department Name</th><th>Cost per FF</th></tr></thead><tbody><tr>'
+        {
+          for (const[key,value] of Object.entries(myJson[1]))
+          {
+            Params = "'" + value['department_id'] + "'," + "'" + value['department_name'] + "'," + "'" + value['cost_per_ff'] + "'";
+            outHTML += '<tr>';
+            outHTML += '<td>' + value['department_id'];
+            outHTML += '<td>' + value['department_name'];
+            outHTML += '<td>' + value['cost_per_ff'];
+            outHTML += '<td><div class="dropdown"><button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded"></i></button><div class="dropdown-menu" data-bs-toggle="offcanvas" data-bs-target="#offcanvasEnd" aria-controls="offcanvasEnd"><a class="dropdown-item" href="javascript:editrow(1,' + Params + ');"><i class="bx bx-edit-alt me-1"></i>Edit</a><a class="dropdown-item" href="javascript:deleterow(' + "'" + value['department_id'] + "'" + ');"><i class="bx bx-trash me-1"></i>Delete</a></div></div></td></tr>'
+          }
+          outHTML += '</tbody></table></div>';
+          document.getElementById('cost_table_list').innerHTML = outHTML;
+        }
+      }
+      catch
+      {
+        func_ShowAlert('Server not Running, Please Start the Python Advanced ToolBox Server...', true);
+      }
+}
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//----------------------------------NEW----------------------------------------------
+function editrow(mode, dID, dNm, fCo)
+{
+  //show and hide of the pop-out slider is controlled by the ARIA tags on the clickable elements data-bs-toggle="offcanvas" data-bs-target="#offcanvasEnd" aria-controls="offcanvasEnd"
+  if (mode == 1)
+  {
+    document.getElementById('incl_department_id').value = dID;
+    document.getElementById('department_name').value = dNm;
+    document.getElementById('incl_cost_per_ff').value = fCo;
+    bol_formCostChanged = false;
+    document.getElementById('formCostSave').disabled = true;
+  }
+  else
+  {
+    func_ShowAlert('Saving Setting...', true)
+    func_SaveCost();
+    func_LoadCost();
+  }
 
 }
 
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//----------------------------------NEW----------------------------------------------
+// call the save URL NEW
+const func_SaveCost = async () => 
+    {
+      try
+      {
+        s_url = 'http://localhost:8080/savecostsettings|||' + document.getElementById('incl_department_id').value + '|||' + document.getElementById('incl_cost_per_ff').value;
+        const response = await fetch(s_url);
+        const myJson = await response.json(); //extract TEXT from the http response
+        func_ShowAlert('Done saving Cost Settings...', true);
+        return true;
+      }
+      catch (error)
+      {
+        func_ShowAlert(error.message, true);
+        return false;
+      }
+    }
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+function deleterow(rowid)
+{
+  console.debug('not implemented yet...')
+  console.debug (rowid);
+}
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 function text_encode (s)
 {
   try 
@@ -185,9 +224,9 @@ function text_encode (s)
   }
 }
 
-//-----------------------------------------------------------
-//-----------------------------------------------------------
-//-----------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 const func_saveSettings = async () => 
 {
     // ------ Start fetching the data
@@ -214,9 +253,10 @@ const func_saveSettings = async () =>
 
 }
 
-//-----------------------------------------------------------
-//-----------------------------------------------------------
-//-----------------------------------------------------------
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 function validate_form(formID)
 {
   s_srchPairs = '';
@@ -243,6 +283,10 @@ function validate_form(formID)
   
 }
 
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 function func_checkChanged()
 {
   if (bol_idChanged==true && bol_formSaved==true)
@@ -257,7 +301,45 @@ function func_checkChanged()
 }
 </script>
 
+
+
 <body onload="isLoggedIn();">
+<!-- ********************************* Pop-out hidden Right Slider to show Form Edit NEW***************************-->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEnd" aria-labelledby="offcanvasEndLabel">
+  <div class="offcanvas-header">
+    <h5 id="offcanvasEndLabel" class="offcanvas-title">Edit Cost Per FF</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body my-auto mx-0 flex-grow-0">
+    <p id="myModalContent3" class="text-start"> 
+      <!-- FORM Content-->
+      <form id="frmCostConfig">
+        <div class="mb-3 row"> <!-- Department ID -->
+          <label for="col-md-auto" class="col-md-4 form-label">Department ID</label>
+          <div class="col-md-auto">
+            <input disabled class="form-control col-md-auto" type="text" value="" id="incl_department_id" />
+          </div>
+        </div>
+        <div class="mb-3 row"> <!-- Depaetment Name -->
+          <label for="col-md-auto" class="col-md-4 form-label">Department Name</label>
+          <div class="col-md-auto">
+            <input disabled class="form-control col-md-auto" type="text" value="" id="department_name" />
+          </div>
+        </div>
+        <div class="mb-3 row"> <!-- Cost per FF utilized that is not archived -->
+          <label for="col-md-auto" class="col-md-4 form-label">Cost per Feature Flag</label>
+          <div class="col-md-auto">
+            <input onchange="bol_formCostChanged = true;document.getElementById('formCostSave').disabled = false;" class="form-control col-md-auto" type="text" value="" id="incl_cost_per_ff" />
+          </div>
+        </div>
+      </form>
+
+
+    </p>
+    <button type="button" class="btn btn-primary mb-2 d-grid w-100" data-bs-dismiss="offcanvas">Cancel</button>
+    <button onclick="editrow(2,'','',''); " id="formCostSave" disabled type="button" class="btn btn-primary mb-2 d-grid w-100" data-bs-dismiss="offcanvas">Save</button>
+  </div>
+</div> <!-- // END OF Pop-out hidden Right Slider to show Form Edit NEW***************************-->
 
 
 <!-- Layout wrapper -->
@@ -273,7 +355,7 @@ function func_checkChanged()
           <span class="app-brand-logo demo">
             <img src="./assets/img/branding/logo.png" class="h-auto" width="40px" alt="logo">
           </span>
-          <span class="app-brand-text demo menu-text fw-bold ms-2">Advanced Search
+          <span class="app-brand-text demo menu-text fw-bold">Advanced ToolBox
             <br />
             <span class="fs-tiny fw-medium opacity-25">for LaunchDarkly</span>
           </span>
@@ -327,6 +409,14 @@ function func_checkChanged()
             <div data-i18n="Email">Refresh CRDB</div>
           </a>
         </li>
+
+        <li class="menu-item">
+          <a href="MigrateToLDH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Migrate CRDB to LD</div>
+          </a>
+        </li>
+
         <li class="menu-item active">
           <a href="SettingsH.html" class="menu-link">
             <i class="menu-icon tf-icons bx bx-detail"></i>
@@ -363,7 +453,7 @@ function func_checkChanged()
         <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
           <div class="">
             <div class="nav-item d-flex align-items-center">
-              <i class="blockquote">The Advanced Search for LD accross Projects, Environments and Flags...</i>
+              <i class="blockquote">The Advanced ToolBox for LD delivering a growing toolset accross Projects, Environments and Flags...</i>
             </div>
           </div>
           <ul class="navbar-nav flex-row align-items-center ms-auto">
@@ -426,98 +516,118 @@ function func_checkChanged()
         <div class="container-xxl flex-grow-1 container-p-y">
           <h4 class="fw-bold py-3 mb-4">Settings</h4>
           <!-- ************************ FORM **********************-->
+          <div class="nav-align-top">
+            <ul class="nav nav-tabs" role="tablist">
+              <li class="nav-item">
+                  <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-top-config" aria-controls="navs-top-home" aria-selected="true">System Config</button>
+              </li>
+              <li class="nav-item">
+                  <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-top-cost" aria-controls="navs-top-profile" aria-selected="false">Cost Config</button>
+              </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="navs-top-config" role="tabpanel">
+                  <!-- Tab1 Content-->
+                  <form id="frmSettings">
+                    <table width="100%">  <!-- Spacer and heading-->
+                      <tr align="left">
+                        <td style="padding-bottom: 10px;" width="60px"><hr style="height:3px;color:darkolivegreen"></td>
+                        <td width="10px"></td>
+                        <TD style="padding-bottom: 10px;"><B style="text-transform: capitalize;">Advanced ToolBox Login</B></TD>
+                      </tr>
+                    </table> <!-- // END OF Spacer and heading-->
+                  
+                    <div class="mb-3 row"> <!-- user name -->
+                      <label for="html5-text-input" class="col-md-2 col-form-label">User Name</label>
+                      <div class="col-md-10">
+                        <input onchange="bol_idChanged=true" class="form-control" type="text" value="" id="incl_ASuser_nameAS" />
+                      </div>
+                    </div>
+                    
+                    <div class="mb-3 row"> <!-- password #1-->
+                      <label for="html5-password-input" class="col-md-2 col-form-label">Password</label>
+                      <div class="col-md-10">
+                        <input onchange="bol_idChanged=true" class="form-control" type="text" value="" id="incl_ASpassword_1" />
+                      </div>
+                    </div>
 
-          <form id="frmSettings">
-            <table width="100%">  <!-- Spacer and heading-->
-              <tr align="left">
-                <td style="padding-bottom: 10px;" width="60px"><hr style="height:3px;color:darkolivegreen"></td>
-                <td width="10px"></td>
-                <TD style="padding-bottom: 10px;"><B style="text-transform: capitalize;">Advanced Search Login</B></TD>
-              </tr>
-            </table> <!-- // END OF Spacer and heading-->
-          
-            <div class="mb-3 row"> <!-- user name -->
-              <label for="html5-text-input" class="col-md-2 col-form-label">User Name</label>
-              <div class="col-md-10">
-                <input onchange="bol_idChanged=true" class="form-control" type="text" value="" id="incl_ASuser_nameAS" />
-              </div>
+                    <div class="mb-3 row"> <!-- Logging -->
+                      <label for="html5-text-input" class="col-md-2 col-form-label">Enable Logging</label>
+                      <div class="col-md-10">
+                        <select id="incl_ASlogging" class="form-select">
+                          <option value=true>Enabled</option>
+                          <option selected value=false>Disabled</option>
+                        </select>
+                      </div>
+                    </div>
+
+
+                    <table width="100%">  <!-- Spacer and heading-->
+                      <tr align="left">
+                        <td style="padding-bottom: 10px;" width="60px"><hr style="height:3px;color:darkolivegreen"></td>
+                        <td width="10px"></td>
+                        <TD style="padding-bottom: 10px;"><B style="text-transform: capitalize;">Database Information</B></TD>
+                      </tr>
+                    </table> <!-- // END OF Spacer and heading-->
+
+                    <div class="mb-3 row"> <!-- Database connection -->
+                      <label for="html5-search-input" class="col-md-2 col-form-label">Database Connection</label>
+                      <div class="col-md-10">
+                        <input onblur="func_regexFind(this.value,1,'incl_DBusername');func_regexFind(this.value,2,'incl_DBpassword');" class="form-control" type="search" value="" id="incl_DBconnection" />
+                      </div>
+                    </div>
+
+                    <div class="mb-3 row"> <!-- database user name -->
+                      <label for="html5-text-input" class="col-md-2 col-form-label">Database User Name</label>
+                      <div class="col-md-10">
+                        <input disabled class="form-control" type="text" value="" id="incl_DBusername" />
+                      </div>
+                    </div>
+
+                    <div class="mb-3 row"> <!-- database password -->
+                      <label for="html5-password-input" class="col-md-2 col-form-label">Database Password</label>
+                      <div class="col-md-10">
+                        <input disabled class="form-control" type="text" value="" id="incl_DBpassword" />
+                      </div>
+                    </div>
+                    
+                    <table width="100%">  <!-- Spacer and heading-->
+                      <tr align="left">
+                        <td style="padding-bottom: 10px;" width="60px"><hr style="height:3px;color:darkolivegreen"></td>
+                        <td width="10px"></td>
+                        <TD style="padding-bottom: 10px;"><B style="text-transform: capitalize;">LaunchDarkly Information</B></TD>
+                      </tr>
+                    </table> <!-- // END OF Spacer and heading-->
+
+                    <div class="mb-3 row"> <!-- LaunchDarkly Key -->
+                      <label for="html5-text-input" class="col-md-2 col-form-label">API Key</label>
+                      <div class="col-md-10">
+                        <input class="form-control" type="text" value="" id="incl_LDkey" />
+                      </div>
+                    </div>
+                    <div class="mb-3 row"> <!-- LaunchDarkly Key -->
+                      <label for="html5-text-input" class="col-md-2 col-form-label">Key Name</label>
+                      <div class="col-md-10">
+                        <input class="form-control" type="text" value="" id="incl_LDkeyname" />
+                      </div>
+                    </div>
+
+                    <div align="center" width="100%"><!-- SUBMIT BUtton-->
+                      <button type="button" class="btn btn-primary me-2" onclick="validate_form('frmSettings');">
+                        <span class="tf-icons bx bx-pie-chart-alt me-1"></span> Save
+                      </button>
+                    </div><!-- //-->
+                  </form>
+                </div>
+                <div class="tab-pane fade" id="navs-top-cost" role="tabpanel">
+                    <!-- /\/\/\/\/\/\/\/\/\/\/ Tab2 Content /\/\/\/\/\/\/\/\/\/\/-->
+                    <div class="table-responsive" id="cost_table_list">
+                      <!-- JS will fill this-->
+                    </div>
+
+                </div>
             </div>
-            
-            <div class="mb-3 row"> <!-- password #1-->
-              <label for="html5-password-input" class="col-md-2 col-form-label">Password</label>
-              <div class="col-md-10">
-                <input onchange="bol_idChanged=true" class="form-control" type="text" value="" id="incl_ASpassword_1" />
-              </div>
-            </div>
-
-            <div class="mb-3 row"> <!-- Logging -->
-              <label for="html5-text-input" class="col-md-2 col-form-label">Enable Logging</label>
-              <div class="col-md-10">
-                <select id="incl_ASlogging" class="form-select">
-                  <option value=true>Enabled</option>
-                  <option selected value=false>Disabled</option>
-                </select>
-              </div>
-            </div>
-
-
-            <table width="100%">  <!-- Spacer and heading-->
-              <tr align="left">
-                <td style="padding-bottom: 10px;" width="60px"><hr style="height:3px;color:darkolivegreen"></td>
-                <td width="10px"></td>
-                <TD style="padding-bottom: 10px;"><B style="text-transform: capitalize;">Database Information</B></TD>
-              </tr>
-            </table> <!-- // END OF Spacer and heading-->
-
-            <div class="mb-3 row"> <!-- Database connection -->
-              <label for="html5-search-input" class="col-md-2 col-form-label">Database Connection</label>
-              <div class="col-md-10">
-                <input onblur="func_regexFind(this.value,1,'incl_DBusername');func_regexFind(this.value,2,'incl_DBpassword');" class="form-control" type="search" value="" id="incl_DBconnection" />
-              </div>
-            </div>
-
-            <div class="mb-3 row"> <!-- database user name -->
-              <label for="html5-text-input" class="col-md-2 col-form-label">Database User Name</label>
-              <div class="col-md-10">
-                <input disabled class="form-control" type="text" value="" id="incl_DBusername" />
-              </div>
-            </div>
-
-            <div class="mb-3 row"> <!-- database password -->
-              <label for="html5-password-input" class="col-md-2 col-form-label">Database Password</label>
-              <div class="col-md-10">
-                <input disabled class="form-control" type="text" value="" id="incl_DBpassword" />
-              </div>
-            </div>
-            
-            <table width="100%">  <!-- Spacer and heading-->
-              <tr align="left">
-                <td style="padding-bottom: 10px;" width="60px"><hr style="height:3px;color:darkolivegreen"></td>
-                <td width="10px"></td>
-                <TD style="padding-bottom: 10px;"><B style="text-transform: capitalize;">LaunchDarkly Information</B></TD>
-              </tr>
-            </table> <!-- // END OF Spacer and heading-->
-
-            <div class="mb-3 row"> <!-- LaunchDarkly Key -->
-              <label for="html5-text-input" class="col-md-2 col-form-label">API Key</label>
-              <div class="col-md-10">
-                <input class="form-control" type="text" value="" id="incl_LDkey" />
-              </div>
-            </div>
-            <div class="mb-3 row"> <!-- LaunchDarkly Key -->
-              <label for="html5-text-input" class="col-md-2 col-form-label">Key Name</label>
-              <div class="col-md-10">
-                <input class="form-control" type="text" value="" id="incl_LDkeyname" />
-              </div>
-            </div>
-
-            <div align="center" width="100%"><!-- SUBMIT BUtton-->
-              <button type="button" class="btn btn-primary me-2" onclick="validate_form('frmSettings');">
-                <span class="tf-icons bx bx-pie-chart-alt me-1"></span> Save
-              </button>
-            </div><!-- //-->
-          </form>
-
+          </div>
           <!-- *****************************************************-->
 
         </div>
@@ -586,6 +696,7 @@ function func_checkChanged()
   <!-- Main JS -->
   <script src="./assets/js/main.js"></script>
   <script>func_LoadValues();</script>
+  <script>func_LoadCost();</script>
 </body>
 
 </html>

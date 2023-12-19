@@ -1,0 +1,473 @@
+
+<!DOCTYPE html>
+<html lang="en" class="light-style layout-footer-fixed layout-menu-collapsed" dir="ltr" data-theme="theme-default"
+  data-assets-path="./assets/" data-template="vertical-menu-template-starter">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
+
+  <title>ToolBox4LD</title>
+
+  <meta name="description" content="" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="./assets/img/favicon/favicon.ico" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+    rel="stylesheet" />
+
+  <!-- Icons. Uncomment required icon fonts -->
+  <link rel="stylesheet" href="./assets/vendor/fonts/boxicons.css" />
+  <!-- <link rel="stylesheet" href="./assets/vendor/fonts/fontawesome.css" /> -->
+  <!-- <link rel="stylesheet" href="./assets/vendor/fonts/flag-icons.css" /> -->
+
+  <!-- Core CSS -->
+  <link rel="stylesheet" href="./assets/vendor/css/core.css" />
+  <link rel="stylesheet" href="./assets/vendor/css/theme-default.css" />
+  <link rel="stylesheet" href="./assets/css/demo.css" />
+
+  <!-- Vendors CSS -->
+  <link rel="stylesheet" href="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+
+  <!-- Helpers -->
+  <script src="./assets/vendor/js/helpers.js"></script>
+  <script src="./common/commonH.js"></script>
+
+  
+  <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+  <script src="./assets/js/config.js"></script>
+
+</head>
+
+<body onload="isLoggedIn();">
+
+<!-- Layout wrapper -->
+<div class="layout-wrapper layout-content-navbar">
+
+  <!-- Layout container -->
+  <div class="layout-container">
+
+     <!-- spinner-->
+          <!-- Modal -->
+          <div class="modal" id="myModal" tabindex="-1">
+            <div style="width:20%; height: 20%; align-self: center;">
+              <!-- Spinner -->
+              <div class="d-flex justify-content-center">
+                <div class="spinner-border spinner-border-lg text-primary" role="status">
+                  <span class="visually-hidden">Running...</span>
+                </div>
+              </div>
+              <!-- -->
+            </div>
+        </div>
+
+    <!-- Menu -->
+    <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+      <div class="app-brand demo">
+        <a href="homeH.html" class="app-brand-link">
+          <span class="app-brand-logo demo">
+            <img src="./assets/img/branding/logo.png" class="h-auto" width="40px" alt="logo">
+          </span>
+          <span class="app-brand-text demo menu-text fw-bold">Advanced ToolBox
+            <br />
+            <span class="fs-tiny fw-medium opacity-25">for LaunchDarkly</span>
+          </span>
+        </a>
+
+        <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
+          <i class="bx bx-chevron-left bx-sm align-middle"></i>
+        </a>
+      </div>
+
+      <div class="menu-inner-shadow"></div>
+
+      <ul class="menu-inner py-1">
+        <!-- Page -->
+        <li class="menu-item">
+          <a href="HomeH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-home-circle"></i>
+            <div data-i18n="Email">Home</div>
+          </a>
+        </li>
+
+        <li class="menu-header small text-uppercase">
+          <span class="menu-header-text">Search</span>
+        </li>
+
+        <li class="menu-item">
+          <a href="ProjectsH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Projects</div>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="EnvironmentsH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Environments</div>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="FlagsH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Feature Flags</div>
+          </a>
+        </li>
+
+        <li class="menu-header small text-uppercase">
+          <span class="menu-header-text">Admin</span>
+        </li>
+        <li class="menu-item">
+          <a href="RefreshdbH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Refresh CRDB</div>
+          </a>
+        </li>
+        <li class="menu-item active">
+          <a href="MigrateToLDH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Migrate CRDB to LD</div>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="SettingsH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Settings</div>
+          </a>
+        </li>
+        <li class="menu-header small text-uppercase">
+          <span class="menu-header-text">Misc.</span>
+        </li>
+        <li class="menu-item">
+          <a href="SourcecodeH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Source Code</div>
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <!--/ Menu -->
+
+    <!-- Layout page -->
+    <div class="layout-page">
+
+      <!-- Navbar -->
+      <nav
+        class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+        id="layout-navbar">
+
+        <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+          <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+            <i class="bx bx-menu bx-sm"></i>
+          </a>
+        </div>
+
+        <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+          <div class="">
+            <div class="nav-item d-flex align-items-center">
+              <i class="blockquote">The Advanced ToolBox providing a growing extended toolset for the LD platform accross Projects, Environments and Flags...</i>
+            </div>
+          </div>
+          <ul class="navbar-nav flex-row align-items-center ms-auto">
+            <!-- User -->
+            <li class="nav-item navbar-dropdown dropdown-user dropdown">
+              <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+                <div class="avatar avatar-online">
+                  <img src="./assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
+                </div>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <div class="d-flex">
+                      <div class="flex-shrink-0 me-3">
+                        <div class="avatar avatar-online">
+                          <img src="./assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
+                        </div>
+                      </div>
+                      <div class="flex-grow-1">
+                        <span id="USERID_H" class="fw-semibold d-block">John Doe</span>
+                        <small class="text-muted">Admin</small>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <div class="dropdown-divider"></div>
+                </li>
+                
+                <li>
+                  <a class="dropdown-item" href="SettingsH.html">
+                    <i class="bx bx-cog me-2"></i>
+                    <span class="align-middle">Settings</span>
+                  </a>
+                </li>
+                
+                <li>
+                  <div class="dropdown-divider"></div>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="index.html">
+                    <i class="bx bx-power-off me-2"></i>
+                    <span class="align-middle">Log Out</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <!--/ User -->
+
+          </ul>
+        </div>
+      </nav>
+      <!--/ Navbar -->
+
+      <!-- Content wrapper -->
+      <div class="content-wrapper"> <!-- SPACER DIV-->
+
+        <!-- Content -->
+        <div class="container-xxl flex-grow-1 container-p-y">
+
+            <!-- container for the 2 cards-->
+            <div class="row gy-4" data-masonry='{"percentPosition": true }'> 
+
+              <!-- CARD #1: Form Elements -->
+              <div class="col-md">
+                <div class="card text-white bg-secondary">
+                  <div class="card-header"><B>Migrate CRDB to LD Subscription</B></div>
+                  <div class="card-body">
+                    <h5 class="card-title text-white">Filter updates by:</h5>
+                    <p class="card-text">
+                      <!-- **************** FORM *****************-->
+                      <div height="5px" style="font-size: 3px;">&nbsp; </div> <!-- spacer-->
+                      <div class="input-group input-group-lg">
+                        <span class="input-group-text">Target API Key</span>
+                        <input value="" id="tfrm_api" type="text" class="form-control" placeholder="api-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx" />
+                      </div>
+                      <div height="5px" style="font-size: 6px;">&nbsp; </div> <!-- spacer-->
+                      <div class="input-group input-group-lg">
+                        <span class="input-group-text">Project ID Filter</span>
+                        <input id="tfrm_projects" type="text" class="form-control" placeholder="Project ID" value="" />
+                      </div>
+                      <div height="5px" style="font-size: 6px;">&nbsp; </div> <!-- spacer-->
+                      <div class="input-group input-group-lg">
+                        <span class="input-group-text">Environment ID Filter</span>
+                        <input id="tfrm_envs" type="text" class="form-control" placeholder="Environment ID" value="" />
+                      </div>
+                      <!-- More Fields goes here-->
+                      <div height="5px" style="font-size: 6px;">&nbsp; </div> <!-- spacer-->
+                      <div class="input-group mb-2">
+                        <button type="button" class="btn btn-primary me-2" id="bfrm_submit" data-bs-toggle="modal" data-bs-target="#modals-transparent" onclick="asyncfunc_MigrateToLD();">
+                          <span class="tf-icons bx bx-check me-1"></span> Start Migration
+                        </button>
+                      </div>
+                      <!-- ***************************************-->
+                    </p>
+                  </div>
+                </div>
+              </div> <!-- End of CARD #1-->
+
+              <!-- CARD #2-->
+              <div class="col-md-5">
+                <div class="card mb-3">
+                  <div class="row g-0">
+                    
+                    <div class="col-md-8">
+                      <div class="card-body">
+                        <h5 class="card-title">Migrate CRDB to LD Subscription</h5>
+                        <p class="card-text">
+                          This function will call LD APIs to copy data from CRDB to a target LD subscription. 
+                          This will coopy Project, Environments and Flags and you can limit the migration by selecting a specific project to copy.
+                          Due to API rate limiting, the avarage data migration is around 1 Second per Flag.
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4"><img class="card-img card-img-left" src="assets/img/elements/16.png" alt="Card image" /></div>
+                  </div>
+                </div>
+              </div> <!-- End of CARD #2-->
+
+          </div> <!-- ROW DIV-->
+
+          <!-- Row 2 with results-->
+          <div class="row gy-4" data-masonry='{"percentPosition": true }'> 
+            <!-- Separator with header-->
+            <hr class="mt-5">
+            <!-- Results Card in Row 2-->
+            <div class="card" style="width: 100%;">
+              <div class="card-body">
+                <p align="right"><i class="bx bx-abacus" style="color:#96a1e1"></i><B>Total Flag Count: </B> <i id="s_last_refresh">0 Flags</i></p>
+                <h5 class="card-title">Data Migration Results</h5>
+                <h6 id="lbl_functionstat" class="card-subtitle mb-2 text-muted">Function Idle...</h6>
+                <p id="lbl_functioninfo" id="results_line1" class="card-text">Click the start button to start migrating data from CRDB to LaunchDarkly subscription.</p>
+                <p id="results_line2" class="card-text">
+                  <!-- **************************************************************************** -->
+                  
+                  <!-- **************************************************************************** -->
+                </p>
+              </div>
+            </div>
+          </div>
+
+          </div> <!-- end of container for the 2 cards-->
+
+         
+        <!--/ Content -->
+
+        <!-- Messages DIV-->
+        <div class="alert alert-primary d-flex" role="alert" id="divStatus" style="visibility: hidden;">
+        <span class="badge badge-center rounded-pill bg-primary border-label-primary p-3 me-2"><i class="bx bx-command fs-6"></i></span>
+        <div class="d-flex flex-column ps-1">
+          <span id="divStatusText"></span>
+        </div>
+        </div>
+        <div class="alert alert-danger" role="alert"  width="100%" height="15px" style="visibility: hidden;"><B id="divStatusText"></B></div>
+        <!-- //Messages DIV-->
+
+
+         <!-- Footer -->
+         <footer class="content-footer footer bg-footer-theme">
+          <div
+            class="container-xxl d-flex flex-wrap justify-content-between align-items-center py-2 flex-md-row flex-column">
+
+            <div class="mb-2 mb-md-0">
+              ©
+              <script>
+                document.write(new Date().getFullYear());
+              </script>
+              <a href="#" target="_blank" class="footer-link fw-bolder">ThemeSelection</a>
+            </div>
+            <div>
+              <a href="https://themeselection.com/documentation" target="_blank"
+                class="footer-link me-4">Documentation</a>
+            </div>
+          </div>
+        </footer>
+        <!--/ Footer -->
+
+        <!-- Content area backdrop -->
+        <div class="content-backdrop fade"></div>
+      </div>
+      <!--/ Content wrapper -->
+
+    </div>
+    <!-- Layout page -->
+
+  </div>
+  <!-- Layout container -->
+
+  <!-- Overlay -->
+  <div class="layout-overlay layout-menu-toggle"></div>
+
+  <!-- Drag Target Area To SlideIn Menu On Small Screens -->
+  <div class="drag-target"></div>
+</div>
+<!--/ Layout wrapper -->
+
+  <!-- Core JS -->
+  <!-- build:js assets/vendor/js/core.js -->
+  <script src="./assets/vendor/libs/jquery/jquery.js"></script>
+  <script src="./assets/vendor/libs/popper/popper.js"></script>
+  <script src="./assets/vendor/js/bootstrap.js"></script>
+  <script src="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+  <script src="./assets/vendor/libs/hammer/hammer.js"></script>
+  <script src="./assets/vendor/js/menu.js"></script>
+  <!-- endbuild -->
+
+  <!-- Main JS -->
+  <script src="./assets/js/main.js"></script>
+
+
+<!--  ******************************* Execute and return the results to the page **********************************-->
+<!--            'http://localhost:8080/refresh|||API-KEY|||Project-ID'       --> the name search option is not yet implemented
+<script>
+// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
+var g_FlagsCnt = 0;
+const getFlagCnt = async () => 
+  {
+      try
+      {
+          const response = await fetch('http://localhost:8080/cnt|||flags');
+          const myJson = await response.text(); //extract TEXT from the http response
+          g_FlagsCnt = Number(myJson);
+          document.getElementById('s_last_refresh').innerText = myJson + ' Flags';
+      }
+      catch(e){
+          const myJson = e.message;
+          document.getElementById('s_last_refresh').innerHTML = myJson;
+          console.log(e.message);
+      }
+  }
+
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+  const asyncfunc_MigrateToLD = async () => 
+  {
+
+      s_ProjNames = document.getElementById("tfrm_projects").value;
+      s_EnvNames = document.getElementById("tfrm_envs").value;
+
+      // Validate with user
+      if (document.getElementById('tfrm_projects').value == '')
+      {
+        n_runtime = g_FlagsCnt / 60 * 2; // estimate 2 seconds per 1-flag copy
+        n_runtime = Math.round(n_runtime)
+        var strconfirm = confirm("The copy process can run for " + n_runtime + " minutes. \n Are you sure you want to continue?");
+        if (strconfirm == false)
+        {
+          return(0);
+        }
+      }
+
+      const d = new Date();
+      let time = d.getTime();
+      s_orig1 = document.getElementById("lbl_functionstat").innerText;
+      s_orig2 = document.getElementById("lbl_functioninfo").innerText;
+      document.getElementById("lbl_functionstat").innerText = "Function Running....";
+      document.getElementById("lbl_functioninfo").innerText = "NOW, Coying data from CRDB to LD, Please wait....";
+      document.getElementById('myModal').classList.add('modal2');
+      s_API = document.getElementById("tfrm_api").value;
+      s_URL = 'http://localhost:8080/copyld|||' + s_API + '|||' + s_ProjNames + '|||' + s_EnvNames ;
+     
+      
+      try
+      {
+          const response = await fetch(s_URL);
+          const myJson = await response.json(); //extract TEXT from the http response
+          
+          const d2 = new Date();
+          let time2 = d2.getTime();
+          tdiff = time2-time;
+          s_tdiff = tdiff.toLocaleString("en-US")
+          document.getElementById('myModal').classList.remove('modal2');
+          document.getElementById("lbl_functionstat").innerText = s_orig1;
+          if (myJson['status'] == 'False')
+          {
+            document.getElementById("lbl_functioninfo").innerText = "FAILED, running for " + s_tdiff + " milliseconds...";
+          }
+          else
+          {
+            document.getElementById("lbl_functioninfo").innerText = "Function executed successfuly, running for " + s_tdiff + " milliseconds...";
+          }
+          document.getElementById("results_line2").innerHTML = myJson['data'];
+      }
+      catch(e){
+          const myJson = e.message;
+          document.getElementById('myModal').classList.remove('modal2');
+          document.getElementById("lbl_functionstat").innerText = s_orig1;
+          document.getElementById("lbl_functioninfo").innerText = "Function execution failed @" + myJson;
+          console.log(e.message);
+          return (e);
+      }
+  }
+  </script>
+  <script>getFlagCnt();</script>
+</body>
+
+</html>

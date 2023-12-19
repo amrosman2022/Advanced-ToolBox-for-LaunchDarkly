@@ -8,6 +8,10 @@ n_totalFF = 0
 ffSaved = 0
 ffFailed = 0
 
+
+# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 def run_URL (api_key,s_projKey, s_envKey, n_ffCnt, n_startLoad):
     if n_ffCnt > 0:
         url = 'https://app.launchdarkly.com/api/v2/flags/' + s_projKey + "?env=" + s_envKey + "&limit=" + str(n_ffCnt) + "&offset=" + str(n_startLoad)
@@ -19,6 +23,9 @@ def run_URL (api_key,s_projKey, s_envKey, n_ffCnt, n_startLoad):
     response = requests.get(url, headers=headers)
     return response
 
+# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 def get_all_FF(api_key,s_projKey, s_envKey, n_ffCnt):
     
     ffSaved = 0
@@ -44,22 +51,25 @@ def get_all_FF(api_key,s_projKey, s_envKey, n_ffCnt):
     else:
         raise Exception(f'Error retrieving FFs: {response.text}')
 
+
+# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 def main_all_FFs(api_key, s_projKey, s_envKey, n_ffCnt):
     global ffSaved
     global ffFailed
     ffResults = ""
     
-    # Replace 'YOUR_API_KEY' with your actual LaunchDarkly API key
-    #api_key = 'api-xxxxx' #name
+    # Get FFs from LD 
     FFs = get_all_FF(api_key, s_projKey, s_envKey, n_ffCnt)
 
-    # get the "items" in the FFs list
+    # Cycle thorugh the "items" in the FFs list
     flip_state = 1 #allow the DB to open the first time and closes the last time || #1=open+execute, 2=execute+close, 3=open+exec+close, 0=execute only
     for key, value in FFs.items():
         if (key == 'items'):
             for FF in value:
                 flip_state = 0
-                ffResults = db_AccessLayer.main('flags',flip_state,s_projKey,s_envKey, FF["key"],json.dumps(FF))
+                ffResults = db_AccessLayer.main('flags',flip_state,s_projKey,s_envKey, FF["key"], FF)
                 if (ffResults == 'INSERT 0 1'):
                     ffSaved = ffSaved + 1
                 else:
