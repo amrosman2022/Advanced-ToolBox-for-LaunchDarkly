@@ -45,7 +45,7 @@ def read_settings(file_path, encryption_key):
     return return_info
 
 # -----------------------------------------------
-# ------------- Read the settings ---------------
+# ------------- Write the settings ---------------
 # -----------------------------------------------
 def write_settings(file_path, settings_input, encryption_key):
     """
@@ -91,4 +91,5 @@ def func_selector (n_state, new_settings_input):
 
     # Update settings using comma-separated input
     #new_settings_input = "api_key:api-21e8bc01-3972-4b3d-a5a3-92f381397c80,key_name:ao-api-access,logging:0,user_fname:Amr,user_lname:Osman, loginid:amrosman,loginpass:qwerty1"
-    
+
+

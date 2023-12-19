@@ -7,9 +7,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=0.5, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
 
-  <title>LD AdvSrch</title>
+  <title>AdvSrch LaunchDarkly</title>
 
-  <meta name="description" content="" />
+  <meta name="Advanced ToolBox for LaunchDarkly" content="" />
 
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="./assets/img/favicon/favicon.ico" />
@@ -34,9 +34,12 @@
 
   <!-- Vendors CSS -->
   <link rel="stylesheet" href="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+  <script src="./assets/vendor/apexcharts/apexcharts.js"></script>
+  <link rel="stylesheet" href="./assets/vendor/libs/apex-charts/apex-charts.css" />
 
   <!-- Helpers -->
   <script src="./assets/vendor/js/helpers.js"></script>
+  <script src="./common/commonH.js"></script>
 
   
   <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
@@ -59,7 +62,7 @@
           <span class="app-brand-logo demo">
             <img src="./assets/img/branding/logo.png" class="h-auto" width="40px" alt="logo">
           </span>
-          <span class="app-brand-text demo menu-text fw-bold ms-2">Advanced Search
+          <span class="app-brand-text demo menu-text fw-bold">Advanced ToolBox
             <br />
             <span class="fs-tiny fw-medium opacity-25">for LaunchDarkly</span>
           </span>
@@ -113,6 +116,14 @@
             <div data-i18n="Email">Refresh CRDB</div>
           </a>
         </li>
+
+        <li class="menu-item">
+          <a href="MigrateToLDH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Migrate CRDB to LD</div>
+          </a>
+        </li>
+
         <li class="menu-item">
           <a href="SettingsH.html" class="menu-link">
             <i class="menu-icon tf-icons bx bx-detail"></i>
@@ -206,6 +217,7 @@
       <!--/ Navbar -->
 
       <!-- Content wrapper -->
+      <Form id="frm_filters">
       <div class="content-wrapper">
 
         <!-- Content -->
@@ -217,9 +229,9 @@
               <div class="d-flex align-items-end row">
                 <div class="col-sm-7">
                   <div class="card-body">
-                    <h5 class="card-title text-primary">Advanced Search for LaunchDarkly</h5>
+                    <h5 class="card-title text-primary">Advanced ToolBox for LaunchDarkly</h5>
                     <p class="mb-4">
-                      This tool loads your LaunchDarkly Projects, Environments, and Flags into a local DB to search for information accross all the elements loaded from LD.
+                      The ToolBox loads your LaunchDarkly Projects, Environments, and Flags into a local DB to search for information accross all the elements loaded from LD, copy to a target subscription and calculate LD cost per organizational entity.
                     </p>
                     <a href="https://app.launchdarkly.com/" class="btn btn-sm btn-outline-primary">LaunchDarkly Environment</a>
                   </div>
@@ -285,7 +297,69 @@
             </div>
           <!-- Endof/3 boxex with the totals-->
 
+
+          <!-- 2 boxex with the COST-->
+            <!-- Card Box for Departments-->
+            <div class="row">
+              <div class="col-md-6 col-lg-6 order-0 mb-6">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="card-title d-flex align-items-start justify-content-between">
+
+                      <div class="input-group mb-3"> <!-- Departments filters-->
+                        <input id="frmtxt_dd_name" type="text" class="form-control" placeholder="Filter by Department Name" aria-label="Filter by Department Name" aria-describedby="button-addon2">
+                        <button id="frmbtn_dd_name" class="btn btn-icon me-2 btn-primary" type="button" onclick="filterChart('frmtxt_dd_name');"><span class="tf-icons bx bx-search"></span></button>
+                      </div>
+                     
+                    </div><!-- // End of Department Filters-->
+                    
+                    <h3 class="card-title mb-2" id="TDChartDepts"></h3> <!-- Departments Chart Placeholder-->
+                    <!-- ----------Control Bar for Departments Charts---------------- -->
+                    <table class="control-panel">
+                      <TR>
+                        <TD></TD>
+                        <TD onclick="Render(2);" width="50px" class="controls-separator" align="center" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top" data-bs-html="true" title="Reset Graphs"><span class="tf-icons bx bx-reset"></span></TD>
+                        <TD onclick = "func_toggleChartType(ChartDept);" width="50px" class="controls-separator" align="center" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top" data-bs-html="true" title="Toggle Bar/Tree Map"><span class="tf-icons bx bx-bar-chart"></span></TD>
+                      </TR>
+                    </table> <!--  End of Control bar for charts-->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card Box for Users -->
+              <div class="col-md-6 col-lg-6 mb-4">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="card-title d-flex align-items-start justify-content-between">
+                      <div class="input-group mb-3"> <!-- USER filters-->
+                        <input id="frmtxt_ud_name" type="text" class="form-control" placeholder="Filter by Department Name" aria-label="Filter by Department Name" aria-describedby="button-addon2">
+                        <button id="frmbtn_ud_name" class="btn btn-icon me-2 btn-primary" type="button" onclick="filterChart('frmtxt_ud_name');"><span class="tf-icons bx bx-search"></span></button>
+                      </div>
+                      <div class="input-group mb-3"> <!-- USER filters-->
+                        <input id="frmtxt_uu_id" type="text" class="form-control" placeholder="Filter by User Name" aria-label="Filter by User Name" aria-describedby="button-addon2">
+                        <button id="frmbtn_uu_id" class="btn btn-icon me-2 btn-primary" type="button" onclick="filterChart('frmtxt_uu_id');"><span class="tf-icons bx bx-search"></span></button>
+                      </div>
+                    </div>
+                    
+                    <h3 class="card-title text-nowrap mb-1" id="TDChartUsers"></h3><!-- USERS Chart Placeholder-->
+                    <!-- ----------Control Bar for Users Charts---------------- -->
+                    <table class="control-panel">
+                      <TR>
+                        <TD></TD>
+                        <TD onclick="Render(1);" width="50px" class="controls-separator" align="center" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top" data-bs-html="true" title="Reset Graphs"><span class="tf-icons bx bx-reset"></span></TD>
+                        <TD onclick="func_toggleChartType(ChartUser);" width="50px" class="controls-separator" align="center" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top" data-bs-html="true" title="Toggle Bar/Tree Map"><span class="tf-icons bx bx-bar-chart"></span></TD>
+                      </TR>
+                    </table> <!--  End of Control bar for charts-->
+                  </div>
+                </div>
+              </div><!-- // END OF BOX Users -->
+
+
+            </div>
+          <!-- Endof/2 boxex with the COST-->
+
         </div>
+        </Form>
         <!--/ Content -->
 
         <!-- Messages DIV-->
@@ -352,53 +426,12 @@
   
 </body>
 
-<!--  ******************************* the home.html page **********************************-->
+<!--  ******************************* the home.html Section **********************************-->
 <script>
-s_userID = '';
-function func_ShowAlert(s_Message='', b_visibility=false)
-  {
-    if (b_visibility == true)
-    {
-      document.getElementById('divStatus').style.visibility = 'visible';
-      document.getElementById('divStatusText').innerText = s_Message;
-      setTimeout(func_ShowAlert, 3000); // Call hideElement after 3 seconds
-    }
-    else
-    {
-      document.getElementById('divStatus').style.visibility = 'hidden';
-      document.getElementById('divStatusText').innerText = '';
-    }
-    
-  }
-
-  const isLoggedIn = async () => 
-  {
-      try
-      {
-          const response = await fetch('http://localhost:8080/validlogin');
-          const myJson = await response.json(); //extract TEXT from the http response
-          if (JSON.parse(myJson)['success']==true)
-          {
-            console.log('opening index.html');
-            window.open('index.html','_self');
-          }
-          else  // if user is already logged - no action needed
-          {
-            console.log(JSON.parse(myJson)['message']);
-            s_userID = JSON.parse(myJson)['userid'];
-            document.getElementById('USERID_H').innerText = s_userID;
-            return true;
-          }
-      }
-      catch(e)
-      {
-        const myJson = e.message;
-        func_ShowAlert(myJson);
-        console.log(e.message);
-        return (e);
-      }
-  }
-
+var g_s_Dept4User = '';
+// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
   const getFlagCnt = async () => 
   {
       try
@@ -411,10 +444,12 @@ function func_ShowAlert(s_Message='', b_visibility=false)
           const myJson = e.message;
           document.getElementById('top_flags').innerText = myJson;
           console.log(e.message);
-          return (e);
       }
   }
 
+// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
   const getEnvCnt = async () => 
   {
       try
@@ -427,10 +462,12 @@ function func_ShowAlert(s_Message='', b_visibility=false)
           const myJson = e.message;
           document.getElementById('top_env').innerText = myJson;
           console.log(e.message);
-          return (e);
       }
   }
 
+// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
   const getProjCnt = async () => 
   {
       try{
@@ -443,16 +480,310 @@ function func_ShowAlert(s_Message='', b_visibility=false)
           const myJson = e.message;
           document.getElementById('top_projects').innerText = myJson;
           console.log(e.message);
-          return (e);
       }
   }
 </script>
 
-<script>func_ShowAlert('Please wait, loading count for Projects, Environments, and Flags in your environment...', true);</script>
+<!--  ******************************* the Cost.html Section **********************************-->
+<script>
+  var ChartUser;
+  var ChartDept;
+
+
+  //-------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+function func_toggleChartType(objChart)
+{
+  console.debug(objChart.name);
+  if (objChart.core.w.config.chart.type == 'treemap')
+  {
+    objChart.updateOptions({chart: {type: 'bar'}})
+  }
+  else
+  {
+    objChart.updateOptions({chart: {type: 'treemap'}})
+  }
+}
+
+  //-------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+  function filterChart(str_fldName)
+  {
+    
+    switch (str_fldName)
+    {
+      case "frmtxt_dd_name":  //department chart
+        if (document.getElementById(str_fldName).value.length > 0)
+        {
+          s_deptid = " ";
+          s_depname = document.getElementById(str_fldName).value;
+          s_userid = " ";
+          str_srchCrit = s_deptid + "|||" + s_depname + "|||" + s_userid
+          deptResponse = getCostDept(ChartDept, str_srchCrit);
+        }
+        else
+        {
+          func_ShowAlert('Department Name Empty Search Criteria....',true);
+        }
+        break;
+      case "frmtxt_uu_id":  //user chart
+        if (document.getElementById(str_fldName).value.length > 0)
+          {
+            s_deptid = " ";
+            s_depname = " ";
+            s_userid = document.getElementById(str_fldName).value;
+            str_srchCrit = s_deptid + "|||" + s_depname + "|||" + s_userid
+            deptResponse = getCostPerson(ChartUser, str_srchCrit);
+          }
+          else
+          {
+            func_ShowAlert('User ID Empty Search Criteria....',true);
+          }
+          break;
+      case "frmtxt_ud_name":  //user chart
+        if (document.getElementById(str_fldName).value.length > 0)
+        {
+          s_deptid = " ";
+          s_depname = document.getElementById(str_fldName).value;
+          s_userid = " ";
+          str_srchCrit = s_deptid + "|||" + s_depname + "|||" + s_userid
+          deptResponse = getCostPerson(ChartUser, str_srchCrit);
+
+        }
+        else
+        {
+          func_ShowAlert('User Deparetment Name Empty Search Criteria....',true);
+        }
+        break;
+    }
+  }
+  
+  //-------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+  const getAllDept4User = async (s_userid) => 
+  {
+    try{
+          g_s_Dept4User = '';
+          var s_URL = "http://localhost:8080/costraw|||" + s_userid;
+          const response3 = await fetch(s_URL);
+          const myJson = await response3.text(); //extract TEXT from the http response
+          g_s_Dept4User = myJson;
+      }
+      catch(e)
+      {
+          const myJson = e.message;
+          document.getElementById('top_projects').innerText = myJson;
+          console.log(e.message);
+      }
+  }
+
+  //-------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+  const getCostDept = async (objchart,str_srchCrit) => 
+  {
+      try
+      {
+        s_URL = "http://localhost:8080/cost|||department|||" + str_srchCrit;
+        const response = await fetch(s_URL);
+        const myJson = await response.json(); //extract TEXT from the http response
+        result = objchart.updateSeries([{name: 'Cost_by_Dept',data: myJson}]);
+      }
+      catch(e){
+        const myJson = e.message;
+        func_ShowAlert(myJson);
+        console.log(myJson);
+      }
+  }
+  
+  //-------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+  const getCostPerson = async (objchart, str_srchCrit) => 
+  {
+      try
+      {
+          s_URL = "http://localhost:8080/cost|||user|||" + str_srchCrit;
+          const response = await fetch(s_URL);
+          const myJson = await response.json(); //extract TEXT from the http response
+          result = objchart.updateSeries([{name: 'Cost_by_User',data: myJson}]);
+          console.debug('dsdsds');
+      }
+      catch(e){
+          const myJson = e.message;
+          func_ShowAlert(myJson);
+          console.log(myJson);
+      }
+  }
+
+
+  //-------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+    function func_findInJSON(s_toFind)
+    {
+      x = JSON.parse (g_s_Dept4User)
+      for (const key in x)
+      {
+        if (key== s_toFind) 
+        {
+          return x[key];
+        }
+      }
+      return '';
+    }
+
+  //-------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+  function func_updateSrchFlds(config)
+  {
+    console.debug(g_s_Dept4User);
+
+    if (ChartUser.core.w.globals.cuid == config.globals.chartID)
+    {
+      //fState = getAllDept4User(config.globals.categoryLabels[config.dataPointIndex]);
+      document.getElementById('frmtxt_uu_id').value = config.globals.categoryLabels[config.dataPointIndex];
+      document.getElementById('frmtxt_dd_name').value = func_findInJSON(config.globals.categoryLabels[config.dataPointIndex]);
+      document.getElementById('frmtxt_ud_name').value = func_findInJSON(config.globals.categoryLabels[config.dataPointIndex]);
+    }
+    else
+    {
+      document.getElementById('frmtxt_dd_name').value = config.globals.categoryLabels[config.dataPointIndex];
+      document.getElementById('frmtxt_ud_name').value = config.globals.categoryLabels[config.dataPointIndex];
+    }
+  }
+
+  //-------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+  function func_InitializeChart(s_HeaderTxt, n_Height, s_TargetDiv)
+  {
+    var cahrt;
+  
+    var options = 
+    {
+      
+      plotOptions: {
+        treemap: {
+          distributed: true,
+          enableShades: false,
+          shadeIntensity: 10,
+          reverseNegativeShade: true
+        },
+        bar: {
+            borderRadius: 10,
+            columnWidth: '50%',
+          }
+      },
+      stroke: {
+          width: 2
+        },
+        
+        grid: {
+          row: {
+            colors: ['#fff', '#f2f2f2']
+          }
+        },
+      series: [],
+      chart: {
+        height: n_Height,
+        type: 'treemap',
+        events: {
+          click: function(event, chartContext, config) {
+            // The last parameter config contains additional information like `seriesIndex` and `dataPointIndex` for cartesian charts
+            func_updateSrchFlds(config);
+          }
+        }
+      },
+      dataLabels: {
+        enabled: true,
+        style: {
+        colors: ['#333']}
+      },
+      title: {
+        text: s_HeaderTxt,
+      },
+      noData: {
+        text: 'Loading...'
+      },
+      fill: {
+          type: 'gradient',
+          gradient: {
+            shade: 'light',
+            type: "horizontal",
+            shadeIntensity: 0.25,
+            gradientToColors: undefined,
+            inverseColors: true,
+            opacityFrom: 0.85,
+            opacityTo: 0.85,
+            stops: [50, 0, 100]
+          }
+      },
+      xaxis: {
+        type: 'category',
+        tickPlacement: 'on',
+        labels: {
+          rotate: -45,
+          rotateAlways: true
+        }
+      }
+      
+    };
+  
+    chart = new ApexCharts(document.getElementById(s_TargetDiv), options);
+    chart.render();
+    return chart;
+  }
+  
+  
+  //-------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------
+    function Render(mode)
+    {
+      switch (mode)
+      {
+        case 0:   // Initialize and Set all charts
+          ChartUser = func_InitializeChart("Cost per User", 250, "TDChartUsers")
+          ChartDept = func_InitializeChart("Cost per Department", 250, "TDChartDepts")
+          str_srchCrit = " ||| ||| "
+          prsnResponse = getCostPerson(ChartUser, str_srchCrit);
+          deptResponse = getCostDept(ChartDept, str_srchCrit);
+          usrdeptResponse = getAllDept4User('');
+        break;
+        case 1: // reset user chart
+          func_ShowAlert('Please wait, loading Data from Database...', true);
+          document.getElementById('frmtxt_ud_name').value = '';
+          document.getElementById('frmtxt_uu_id').value = '';
+          str_srchCrit = " ||| ||| "
+          prsnResponse = getCostPerson(ChartUser, str_srchCrit);
+          func_ShowAlert('Done Loading Data...Rendering Page in-Progress....', true);
+        break;
+        case 2: // reset department chart
+          func_ShowAlert('Please wait, loading Data from CRDB...', true);
+          document.getElementById('frmtxt_dd_name').value = '';
+          str_srchCrit = " ||| ||| "
+          deptResponse = getCostDept(ChartDept, str_srchCrit);
+          func_ShowAlert('Done Loading Data...Rendering Page in-Progress....', true);
+        break;
+      }
+
+    }
+    
+  </script>
+
+<script>func_ShowAlert('Please wait, loading Data from CRDB...', true);</script>
 <script> getFlagCnt();</script>
 <script>getEnvCnt();</script>
 <script>getProjCnt();</script>
-<script>func_ShowAlert('Done...', true);</script>
+<script>
+  Render(0);
+  func_ShowAlert('Done...Rendering Page in-Progress....', true);
+</script>
 
 
 </html>

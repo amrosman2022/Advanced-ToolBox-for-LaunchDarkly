@@ -12,8 +12,11 @@ import es_common
 
 global cur
 
+# ------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------
 def func_ReturnRows(n_MaxCount, s_Table, s_searchStr, s_SrchFld):
-    OK = openConnection ()
+    OK = setConnection ()
     if OK == True:
         str_SQL = 'Select * from ' + s_Table
         if (len(s_searchStr) > 0):
@@ -38,6 +41,9 @@ def func_ReturnRows(n_MaxCount, s_Table, s_searchStr, s_SrchFld):
 
     return 0
 
+# ------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------
 def func_InsterFlags(s_ProjID, s_EnvID, s_FlagID, s_WriteRow):
     psycopg2.extras.register_uuid()
     with conn.cursor() as cur:
@@ -46,6 +52,9 @@ def func_InsterFlags(s_ProjID, s_EnvID, s_FlagID, s_WriteRow):
     conn.commit()
     return cur.statusmessage
 
+# ------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------
 def func_InsterEnv(s_ProjID, s_EnvID, s_WriteRow):
     psycopg2.extras.register_uuid()
     with conn.cursor() as cur:
@@ -54,6 +63,9 @@ def func_InsterEnv(s_ProjID, s_EnvID, s_WriteRow):
     conn.commit()
     return cur.statusmessage
 
+# ------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------
 def func_InsterProject(s_ProjID,s_WriteRow):
     psycopg2.extras.register_uuid()
     with conn.cursor() as cur:
@@ -62,24 +74,38 @@ def func_InsterProject(s_ProjID,s_WriteRow):
     conn.commit()
     return cur.statusmessage
 
-def openConnection():
+
+# ------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------
+def setConnection(b_state = True):
     global conn
 
-    opt = parse_cmdline()
-    logging.basicConfig(level=logging.DEBUG if opt.verbose else logging.INFO)
-    try:
-        # Attempt to connect to cluster with connection string provided to the script.
-        db_url = opt.dsn
-        conn = psycopg2.connect(db_url, application_name="$ docs_simplecrud_psycopg2", cursor_factory=psycopg2.extras.RealDictCursor)
-        return True
-    except Exception as e:
-        logging.fatal("database connection failed")
-        logging.fatal(e)
-        return False
+    if (b_state == True):
+        opt = parse_cmdline()
+        logging.basicConfig(level=logging.DEBUG if opt.verbose else logging.INFO)
+        try:
+            # Attempt to connect to cluster with connection string provided to the script.
+            db_url = opt.dsn
+            conn = psycopg2.connect(db_url, application_name="$ docs_simplecrud_psycopg2", cursor_factory=psycopg2.extras.RealDictCursor)
+            return True
+        except Exception as e:
+            logging.fatal("database connection failed")
+            logging.fatal(e)
+            return False
+    else:
+        conn.close()
 
+# ------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------
 def main(tableID,state,s_ProjID,s_EnvID,s_FlagID, s_WriteRow ): #1=open + execute, 2=execute + close, 0=execute only
     if (state == 1 or state == 3):
-        openConnection()
+        OK = setConnection()
+        if OK == False:
+            es_common.func_Logging("db_writer.main.Error.Connection open failed")
+            return False
+
     match tableID:
         case 'projects':
             execStatus = func_InsterProject(s_ProjID,s_WriteRow)
@@ -88,13 +114,16 @@ def main(tableID,state,s_ProjID,s_EnvID,s_FlagID, s_WriteRow ): #1=open + execut
         case 'flags':
             execStatus = func_InsterFlags(s_ProjID,s_EnvID,s_FlagID,s_WriteRow)
 
-    print(execStatus)
+    es_common.func_Logging(execStatus)
     if (state == 2 or state==3):
         # Close communication with the database.
-        conn.close()
+        setConnection(False)
     return execStatus
 
 
+# ------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------
 def parse_cmdline():
     parser = ArgumentParser(description=__doc__,
                             formatter_class=RawTextHelpFormatter)
@@ -105,7 +134,7 @@ def parse_cmdline():
     parser.add_argument(
         "dsn",
         #default=os.environ.get("DATABASE_URL"),
-        default=es_common.s_g_db_conn,
+        default="postgresql://john:FxXm44tjf2BSG1GQywmKGQ@solid-sphinx-11729.7tt.cockroachlabs.cloud:26257/LD_Search?sslmode=verify-full",
         nargs="?",
         help="""\
 database connection string\

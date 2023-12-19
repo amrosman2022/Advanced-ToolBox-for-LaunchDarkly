@@ -12,7 +12,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
 
-  <title>LD AdvSrch</title>
+  <title>ToolBox4LD</title>
 
   <meta name="description" content="" />
 
@@ -41,6 +41,7 @@
 
   <!-- Helpers -->
   <script src="./assets/vendor/js/helpers.js"></script>
+  <script src="./common/commonH.js"></script> <!-- changed -->
 
   
   <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
@@ -52,37 +53,7 @@
 
  
 <script>
-  s_userID = '';
-// ----------------------------------------------
-// --------------  Check if looged in------------
-// ----------------------------------------------
-const isLoggedIn = async () => 
-  {
-      try
-      {
-          const response = await fetch('http://localhost:8080/validlogin');
-          const myJson = await response.json(); //extract TEXT from the http response
-          if (JSON.parse(myJson)['success']==true)
-          {
-            console.log('opening index.html');
-            window.open('index.html','_self');
-          }
-          else  // if user is already logged - no action needed
-          {
-            console.log(JSON.parse(myJson)['message']);
-            s_userID = JSON.parse(myJson)['userid'];
-            document.getElementById('USERID_H').innerText = s_userID;
-            return true;
-          }
-      }
-      catch(e)
-      {
-        const myJson = e.message;
-        func_ShowAlert(myJson);
-        console.log(e.message);
-        return (e);
-      }
-  }// End of isLoggedin
+
 
     // ----------------------------------------------
     // --------Common function: XML to Array --------
@@ -96,62 +67,25 @@ const isLoggedIn = async () =>
     // ----------------------------------------------
     // ------------- UI: Submit List or Search ------
     // ----------------------------------------------
-    function func_selector ()
+    function func_selector (n_pageNumber=1, b_Refresh=true)
     {
         bol_TabSelect = document.getElementById("navs-top-home").classList.contains('active');
         if (bol_TabSelect == true)
         {
-            getListofProj();
+            func_ListFlags(n_pageNumber, b_Refresh);
         }
         else 
         {
-            getSrchProj();
+            func_SrchFlags(n_pageNumber, b_Refresh);
         }
     }
 
-    // ---------------------------------------------
-    // -----UI: Show/Hide All the search Form ------
-    // ----------------------------------------------
-    function func_toggleDivState (me, s_element,)
+    // -------------------------------------------------------------------------------------
+    // ---------------------------------MAIN: List All Flags--------------------------------
+    // -------------------------------------------------------------------------------------
+    const func_ListFlags = async (n_pageNumber, b_Refresh) => // Changed
     {
-        state = document.getElementById(s_element);
-        document.getElementById("form_search").reset();
-        if (me.id == "LAP")
-        {
-            state.style.display = "none";
-            document.getElementById("LAP").style.color="green";
-            document.getElementById("SAP").style.color="Gray";
-        }
-        else
-        {
-            state.style.display = "block";
-            document.getElementById("SAP").style.color="green";
-            document.getElementById("LAP").style.color="Gray";
-        }
-    }
-
-    // ----------------------------------------------
-    // -----------UI: Show/Hide Form Field-----------
-    // ----------------------------------------------
-    function func_toggleElementState (me, s_element)
-    {
-        state = document.getElementById(s_element);
-        if (me.checked == true)
-        {
-            state.disabled = false;
-        }
-        else
-        {
-            state.disabled = true;
-        }
-    }
-
-    // ----------------------------------------------
-    // ------------MAIN: List All Flags-----------
-    // ----------------------------------------------
-    const getListofProj = async () => 
-    {
-        // ---------- Status update ----------
+        // ********************** Status update **********************
         const d = new Date();
         let time = d.getTime();
         s_orig1 = document.getElementById("lbl_functionstat").innerText;
@@ -159,39 +93,40 @@ const isLoggedIn = async () =>
         document.getElementById("lbl_functionstat").innerText = "Function Running....";
         document.getElementById("lbl_functioninfo").innerText = "NOW, Started Retrieving Data, Please Wait....";
 
-        // ------ Start fetching the data
+        // ********************** Start fetching the data **********************
         document.getElementById('results_line2').innerHTML = '';
-        const response = await fetch('http://localhost:8080/list|||flags|||' + document.getElementById('skip_tfrm_flagmax').value);
+        s_URL = 'http://localhost:8080/list|||flags|||' + document.getElementById('skip_tfrm_flagmax').value + '|||' + n_pageNumber + '|||' + b_Refresh;
+        const response = await fetch(s_URL); // changed
         const myJson = await response.text(); //extract TEXT from the http response
-        //document.getElementById('ProjList').innerHTML += myJson;
 
-        //-------------------------------------------------------------------
-        // ---------------- Convert the JSON to JS Array --------------------
-        //-------------------------------------------------------------------
+        // ********************** Convert the JSON to JS Array ********************
         myArray = convertXmlToArray(myJson);
-        //--------------------------------------------------------------------------------
-        // - Call the function to write the JS Array into a HTML Table and insert on page -
-        //---------------------------------------------------------------------------------
+
+        //*********************** Call the function to write the JS Array into a HTML Table and insert on page ***********************
         var tableGen = new ArrayToTable();
         tableGen.tableclasses = 'bluetable table-with-oddeven';
         tableGen.tableid = 'tbl_flagslist';
         // replace the CRDB headers with friendly headers
         tableGen.replaceRules = {"s_proj_id":"Project ID", "s_env_id":"Environment ID", "s_flag_id":"Flag ID", "s_flag_data":"Flag JSON Details", "s_flag_tags":"Tags"}
         tableGen.putTableHtmlToId(myArray, 'results_line2', 's_proj_id, s_env_id, s_flag_id, s_flag_tags');
+        getTableInfo(n_pageNumber);   // changed Get the table pagination info and display the page numbers boxes
 
-        // ---------- Status update ----------
+        // ****************** Status update ******************
         const d2 = new Date();
         let time2 = d2.getTime();
         tdiff = time2-time;
         s_tdiff = tdiff.toLocaleString("en-US")
         document.getElementById("lbl_functionstat").innerText = s_orig1;
         document.getElementById("lbl_functioninfo").innerText = "Function execution succeeded, running for " + s_tdiff + " milliseconds...";
-    }
+    } // ---------------->>>>> End of func_ListFlags
 
-    // ----------------------------------------------
-    // ----------MAIN: Search All Flags-----------
-    // ----------------------------------------------
-    const getSrchProj = async () => 
+
+
+
+    // ----------------------------------------------------------------------------
+    // --------------------------------- MAIN: Search All Flags -------------------
+    // ----------------------------------------------------------------------------
+    const func_SrchFlags = async (n_pageNumber, b_Refresh) => // changed 
     {
         const forms = document.querySelectorAll('form');
         const form = forms[1];
@@ -201,7 +136,7 @@ const isLoggedIn = async () =>
         cnt = 0;
 
 
-        // ---------- Status update ----------
+        // ********************** Status update **********************
         const d = new Date();
         let time = d.getTime();
         s_orig1 = document.getElementById("lbl_functionstat").innerText;
@@ -209,13 +144,9 @@ const isLoggedIn = async () =>
         document.getElementById("lbl_functionstat").innerText = "Function Running....";
         document.getElementById("lbl_functioninfo").innerText = "NOW, Started Retrieving Data, Please Wait....";
 
-        //---------------------------------------------------------
-        //---------------------------------------------------------
         document.getElementById('results_line2').innerHTML = '';
 
-        //-----------------------------------------------------------------------------
-        // ------ Cycle through the form fields and Create the URL search  ------------
-        //-----------------------------------------------------------------------------
+        // ********************** Cycle through the form fields and Create the URL search  **********************
         Array.from(forms[0].elements).forEach((input) => 
         {
             if ('text,select-one,number'.indexOf(input.type) >= 0 )
@@ -224,21 +155,37 @@ const isLoggedIn = async () =>
               {
                   if (document.getElementById("skip_"+input.id).checked == true)
                   {
+                    if (input.dataset.prefix != undefined) //* if the field require augmentation with more text to conform with the JSON format in LD
+                      {
+                        s_srchValTemp = input.dataset.prefix + input.value ; //* the field name to search for in LD = Left side of the equation
+                      }
+                      else
+                      {
+                        s_srchValTemp = input.value ;
+                      }
                       if (cnt>0)
                       {
                           switch (input.type)
                           {
                             case 'select-one':
-                              s_srchVal += ',' + input.value;
+                              s_srchVal += ',' + s_srchValTemp;
                               break;
                             case 'checkbox': //* value inside the input field to search aginest = Right side of the equation
                               s_srchVal += ',' + input.checked;
                               break;
                             case 'number':
-                              s_srchVal += ',' + input.value;
+                              s_srchVal += ',' + s_srchValTemp;
                               break;
                             default:
-                              s_srchVal += ',"' + input.value;
+                              if (input.dataset.insert != undefined)
+                              {
+                                s_srchVal += ',' + input.dataset.insert + '"' + s_srchValTemp;
+                              }
+                              else
+                              {
+                                s_srchVal += ',"' + s_srchValTemp;
+                              }
+                              
                           }
                          
                           s_srchStr += ',' + input.id + '":'; //* the field name to search for in LD = Left side of the equation
@@ -252,13 +199,20 @@ const isLoggedIn = async () =>
                             s_srchVal += input.value;
                             break;
                           case 'checkbox': //* value inside the input field to search aginest = Right side of the equation
-                            s_srchVal += input.checked;
+                            s_srchVal += s_srchValTemp;
                             break;
                           case 'number':
-                            s_srchVal += input.value;
+                            s_srchVal += s_srchValTemp;
                             break;
                           default:
-                              s_srchVal += '"' + input.value;
+                            if (input.dataset.insert != undefined)
+                            {
+                              s_srchVal += ',' + input.dataset.insert + '"' + s_srchValTemp;
+                            }
+                            else
+                            {
+                              s_srchVal += '"' + s_srchValTemp;
+                            }
                         }
                           s_srchStr += input.id + '":'; //* the field name to search for in LD = Left side of the equation
                           cnt++;
@@ -267,47 +221,34 @@ const isLoggedIn = async () =>
               }
             }
         });
-        //-----------------------------------------------------------------------------
-        // ------------ Execute the search URL and return an JSON Array ---------------
-        //-----------------------------------------------------------------------------
 
-        s_URL = 'http://localhost:8080/search|||flags' + '|||' + document.getElementById('skip_tfrm_flagmax2').value + '|||' + s_srchStr + '|||' + s_srchVal;
+        // ********************** Execute the search URL and return an JSON Array **********************
+        s_URL = 'http://localhost:8080/search|||flags' + '|||' + document.getElementById('skip_tfrm_flagmax2').value + '|||' + s_srchStr + '|||' + s_srchVal  + '|||' + n_pageNumber + '|||' + b_Refresh; //Changed
        
         const response = await fetch(s_URL);
         const myJson = await response.text() // .text(); //extract TEXT from the http response
 
-        //-------------------------------------------------------------------
-        // ---------------- Convert the JSON to JS Array --------------------
-        //-------------------------------------------------------------------
+        // ********************** Convert the JSON to JS Array **********************
         myArray = convertXmlToArray(myJson);
-        //var JSONobj = JSON.parse(myArray[0]['s_env_data']);
-        //html_Output = formatJsonToHtml(JSONobj);
-        //--------------------------------------------------------------------------------
-        // - Call the function to write the JS Array into a HTML Table and insert on page -
-        //---------------------------------------------------------------------------------
+        
+        // ********************** Call the function to write the JS Array into a HTML Table and insert on page **********************
         var tableGen = new ArrayToTable();
         tableGen.tableclasses = 'bluetable table-with-oddeven';
         tableGen.tableid = 'something-unique';
-        //var tableGen = new ArrayToTable();
         tableGen.replaceRules = {"s_proj_id":"Project ID", "s_env_id":"Environment ID", "s_flag_id":"Flag ID", "s_flag_data":"Flag JSON Details", "s_flag_tags":"Tags"}
         tableGen.putTableHtmlToId(myArray, 'results_line2', 's_proj_id, s_env_id, s_flag_id, s_flag_tags');
-
-        // ---------- Status update ----------
+        getTableInfo(n_pageNumber);   // changed Get the table pagination info and display the page numbers boxes
+        
+        // ********************** Status update **********************
         const d2 = new Date();
         let time2 = d2.getTime();
         tdiff = time2-time;
         s_tdiff = tdiff.toLocaleString("en-US")
         document.getElementById("lbl_functionstat").innerText = s_orig1;
         document.getElementById("lbl_functioninfo").innerText = "Function execution succeeded, running for " + s_tdiff + " milliseconds...";
-    }
+    }  // End of ---------------->>>>>> func_SrchFlags
 // *********************************************************************************************************
-function func_validate(obj_input)
-{
 
-  Number((obj_input.value)<0 || Number(obj_input.value)>100)? obj_input.style.borderColor = 'red':obj_input.style.borderColor = 'lightgray';
-  Number((obj_input.value)<0 || Number(obj_input.value)>100)? obj_input.value=0:obj_input.value=obj_input.value;
-
-}
 </script>
 <!--// ** //-->
 
@@ -326,24 +267,22 @@ function func_validate(obj_input)
     <button type="button" class="btn btn-primary mb-2 d-grid w-100" data-bs-dismiss="offcanvas">Cancel</button>
   </div>
 </div>
-<!-- ************************************************************************************-->
-
 
 
 <!-- ********************************* Layout wrapper ********************************* -->
 <div class="layout-wrapper layout-content-navbar">
 
-  <!-- Layout container -->
+  <!-- ********************** Layout container **********************-->
   <div class="layout-container">
 
-    <!-- Menu -->
+    <!-- ********************** Menu ********************** -->
     <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
       <div class="app-brand demo">
         <a href="homeH.html" class="app-brand-link">
           <span class="app-brand-logo demo">
             <img src="./assets/img/branding/logo.png" class="h-auto" width="40px" alt="logo">
           </span>
-          <span class="app-brand-text demo menu-text fw-bold ms-2">Advanced Search
+          <span class="app-brand-text demo menu-text fw-bold">Advanced ToolBox
             <br />
             <span class="fs-tiny fw-medium opacity-25">for LaunchDarkly</span>
           </span>
@@ -357,7 +296,7 @@ function func_validate(obj_input)
       <div class="menu-inner-shadow"></div>
 
       <ul class="menu-inner py-1">
-        <!-- Page -->
+        <!-- ********************** Page ********************** -->
         <li class="menu-item">
           <a href="homeH.html" class="menu-link">
             <i class="menu-icon tf-icons bx bx-home-circle"></i>
@@ -398,6 +337,14 @@ function func_validate(obj_input)
             <div data-i18n="Email">Refresh CRDB</div>
           </a>
         </li>
+
+        <li class="menu-item">
+          <a href="MigrateToLDH.html" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-detail"></i>
+            <div data-i18n="Email">Migrate CRDB to LD</div>
+          </a>
+        </li>
+
         <li class="menu-item">
           <a href="SettingsH.html" class="menu-link">
             <i class="menu-icon tf-icons bx bx-detail"></i>
@@ -415,12 +362,12 @@ function func_validate(obj_input)
         </li>
       </ul>
     </aside>
-    <!--/ Menu -->
+    <!-- ********************** // End of Menu ********************** -->
 
     <!-- Layout page -->
     <div class="layout-page">
 
-      <!-- Navbar -->
+      <!-- **********************  Navbar ********************** -->
       <nav
         class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
         id="layout-navbar">
@@ -434,7 +381,7 @@ function func_validate(obj_input)
         <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
           <div class="">
             <div class="nav-item d-flex align-items-center">
-              <i class="blockquote">The Advanced Search for LD accross Projects, Environments and Flags...</i>
+              <i class="blockquote">The Advanced ToolBox for LD delivering a growing toolset accross Projects, Environments and Flags...</i>
             </div>
           </div>
           <ul class="navbar-nav flex-row align-items-center ms-auto">
@@ -537,15 +484,31 @@ function func_validate(obj_input)
                            
                             <div class="input-group mb-3"> <!--// skip_key, key-->
                               <div class="input-group-text">
-                                <input id="skip_key" class="form-check-input mt-0" type="checkbox" checked value="checked" onchange="func_toggleElementState(this,'key')">
+                                <input id="skip_key" class="form-check-input mt-0" type="checkbox"  value="checked" onchange="func_toggleElementState(this,'key')">
                               </div>
                               <span class="input-group-text"> Flag ID </span>
                               <input type="text" class="form-control" id="key">
                             </div><!----------------------//Flag ID------------------------>
 
+                            <div class="input-group mb-3"> <!--// skip_s_proj_id, s_proj_id-->
+                              <div class="input-group-text">
+                                <input id="skip_href" class="form-check-input mt-0" type="checkbox" onchange="func_toggleElementState(this,'key')">
+                              </div>
+                              <span class="input-group-text"> Project ID </span>
+                              <input type="text" class="form-control" id="href" data-prefix="*">  <!-- TF before the field denotes that it's a CRDB field-->
+                            </div><!----------------------//project ID------------------------>
+
+                            <div class="input-group mb-3"> <!--// skip_s_proj_id, s_proj_id-->
+                              <div class="input-group-text">
+                                <input id="skip_environments" class="form-check-input mt-0" type="checkbox" onchange="func_toggleElementState(this,'key')">
+                              </div>
+                              <span class="input-group-text"> Environment ID </span>
+                              <input type="text" class="form-control" id="environments" data-insert="{">  <!-- TF before the field denotes that it's a CRDB field-->
+                            </div><!----------------------//Environment ID------------------------>
+
                             <div class="input-group mb-3"> <!--// skip_firstName_lastName, firstName_lastName --->
                               <div class="input-group-text">
-                                <input id="skip_firstName_lastName" class="form-check-input mt-0" type="checkbox" checked value="checked" onchange="func_toggleElementState(this,'firstName_lastName')">
+                                <input id="skip_firstName_lastName" class="form-check-input mt-0" type="checkbox" onchange="func_toggleElementState(this,'firstName_lastName')">
                               </div>
                               <span class="input-group-text">Manitainer First Last Name</span>
                               <input type="text" class="form-control" id="firstName_lastName">
@@ -553,7 +516,7 @@ function func_validate(obj_input)
 
                             <div class="input-group mb-3"> <!--// skip_archived, archived-->
                               <div class="input-group-text">
-                                <input id="skip_archived" class="form-check-input mt-0" type="checkbox" checked value="checked" checked onchange="func_toggleElementState(this,'archived');">
+                                <input id="skip_archived" class="form-check-input mt-0" type="checkbox" onchange="func_toggleElementState(this,'archived');">
                               </div>
                               <select class="form-select" id="archived">
                                 <option value="true">Is Archived</option>
@@ -563,7 +526,7 @@ function func_validate(obj_input)
 
                             <div class="input-group mb-3"><!--// skip_usingEnvironmentId, usingEnvironmentId-->
                               <div class="input-group-text">
-                                <input id="skip_usingEnvironmentId" class="form-check-input mt-0" type="checkbox" checked value="checked" checked onchange="func_toggleElementState(this,'usingEnvironmentId');">
+                                <input id="skip_usingEnvironmentId" class="form-check-input mt-0" type="checkbox" onchange="func_toggleElementState(this,'usingEnvironmentId');">
                               </div>
                               <select class="form-select" id="usingEnvironmentId">
                                 <option value="true">Available for Client-side</option>
@@ -573,7 +536,7 @@ function func_validate(obj_input)
 
                             <div class="input-group mb-3"><!--// skip_usingMobileKey, usingMobileKey-->
                               <div class="input-group-text">
-                                <input id="skip_usingMobileKey" class="form-check-input mt-0" type="checkbox" checked value="checked" checked onchange="func_toggleElementState(this,'usingMobileKey');">
+                                <input id="skip_usingMobileKey" class="form-check-input mt-0" type="checkbox" onchange="func_toggleElementState(this,'usingMobileKey');">
                               </div>
                               <select class="form-select" id="usingMobileKey">
                                 <option value="true">Available for Mobile</option>
@@ -583,7 +546,7 @@ function func_validate(obj_input)
 
                             <div class="input-group mb-3"><!--// skip_experiments, experiments-->
                               <div class="input-group-text">
-                                <input id="skip_experiments" class="form-check-input mt-0" type="checkbox" checked value="checked" checked onchange="func_toggleElementState(this,'experiments');">
+                                <input id="skip_experiments" class="form-check-input mt-0" type="checkbox" onchange="func_toggleElementState(this,'experiments');">
                               </div>
                               <select class="form-select" id="experiments">
                                 <option value="true">Has Experiments Enabled</option>
@@ -643,6 +606,11 @@ function func_validate(obj_input)
                 <p id="lbl_functioninfo" id="results_line1" class="card-text">Click the START button to begin..</p>
                 <p id="results_line2" class="card-text">
                   <!-- **************************** Results *************************************** -->
+                  
+                  <!-- **************************************************************************** -->
+                </p>
+                <p id="results_line3" class="card-text">
+                  <!-- **************************** Changed . Pagination ************************** -->
                   
                   <!-- **************************************************************************** -->
                 </p>

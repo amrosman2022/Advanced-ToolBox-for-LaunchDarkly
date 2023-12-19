@@ -1,0 +1,74 @@
+<html>
+<head>
+  <title>Flask SSE Demo</title>
+</head>
+
+<body onload="func_startStreamT('status','content1');" onbeforeunload="func_closeStream();" style="background-color: black;">
+
+  <!-- new content appears here -->
+  <P id="content1">
+    <Table width="100%" border="1" style="text-align: left; color:chartreuse;font-size: 10px; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">
+      <TR>
+        <TD><B>Projects: </B></TD>
+        <TD width="70%" ID="tblProj"></TD>
+      </TR>
+      <TR>
+        <TD><B>Environments: </B></TD>
+        <TD ID="tblEnv"></TD>
+      </TR>
+      <TR>
+        <TD><B>Flags: </B></TD>
+        <TD ID="tblFlag"></TD>
+      </TR>
+      <TR>
+        <TD colspan="2" Align="center"><B>Errors</B></TD>
+      </TR>
+      <TR>
+        <TD colspan="2" ID="tblErrors"></TD>
+      </TR>
+    </Table>
+  </P>
+
+</body>
+
+<script>
+var evtSource;
+g_j_streamData = {};
+sOutput2 = "";
+g_s_PrevError = "";
+
+function func_startStreamT(streamName, targetID)
+{
+    evtSource = new EventSource('http://127.0.0.1:5050/stream_status');
+    evtSource.addEventListener(streamName, (event) => 
+    {
+        //const listElement = document.getElementById('list');
+        //const newElement = document.getElementById(targetID);
+        //newElement.innerText = event.data;
+        g_j_streamData = JSON.parse(event.data);
+        document.getElementById("tblProj").innerText = g_j_streamData.proj;
+        document.getElementById("tblEnv").innerText = g_j_streamData.env;
+        document.getElementById("tblFlag").innerText = g_j_streamData.flag;
+        if (g_s_PrevError != g_j_streamData.error)
+        {
+            sOutput2 += "<I>" + g_j_streamData.time + ": </I>" + g_j_streamData.error + "<BR>";
+            g_s_PrevError =  g_j_streamData.error;
+        }
+        document.getElementById("tblErrors").innerHTML = sOutput2;
+        //newElement.innerHTML = sOutput + sOutput2;
+    }
+    );
+}
+
+function func_closeStream()
+{
+    evtSource.close();
+}
+
+
+
+
+ 
+</script>
+
+</html>

@@ -46,6 +46,7 @@
     <link rel="stylesheet" href="./assets/vendor/css/pages/page-auth.css" />
     <!-- Helpers -->
     <script src="./assets/vendor/js/helpers.js"></script>
+    <script src="./common/commonH.js"></script>
 
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
@@ -53,23 +54,11 @@
   </head>
 
 <script>
-  function func_ShowAlert(s_Message='', b_visibility=false)
-  {
-    if (b_visibility == true)
-    {
-      document.getElementById('divStatus').style.visibility = 'visible';
-      document.getElementById('divStatusText').innerText = s_Message;
-      setTimeout(func_ShowAlert, 3000); // Call hideElement after 3 seconds
-    }
-    else
-    {
-      document.getElementById('divStatus').style.visibility = 'hidden';
-      document.getElementById('divStatusText').innerText = '';
-    }
-    
-  }
-
-  const func_Logout = async () => 
+  
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+const func_Logout = async () => 
 {
     // ------ Start fetching the data
     try
@@ -87,12 +76,15 @@
       }
       catch
       {
-        func_ShowAlert('Server not Running, Please Start the Python Advanced Search Server...', true);
+        func_ShowAlert('Server not Running, Please Start the Python Advanced ToolBox Server...', true);
       }
-    
 
-}
+} // End of func_Logout
 
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 const func_Login = async () => 
 {
     // ------ Start fetching the data
@@ -113,7 +105,7 @@ const func_Login = async () =>
       }
       catch
       {
-        func_ShowAlert('Server not Running, Please Start the Python Advanced Search Server...', true);
+        func_ShowAlert('Server not Running, Please Start the Python Advanced ToolBox Server...', true);
       }
     
 
@@ -134,7 +126,7 @@ const func_Login = async () =>
               <div class="app-brand justify-content-center">
                 <a href="index.html" class="app-brand-link gap-2">
                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./assets/img/branding/logo2.png" width="25%" height="25%" >
-                  <span class="app-brand-text demo text-body fw-bolder" align="right">Advanced Search <br><i style="font-size: 14px;">for </i>LaunchDarkly</span>
+                  <span class="app-brand-text demo text-body fw-bolder" align="right">Advanced ToolBox <br><i style="font-size: 14px;">for </i>LaunchDarkly</span>
                 </a>
               </div>
               <!-- /Logo -->
