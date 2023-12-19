@@ -1,5 +1,3 @@
-
-
 s_userID = '';
 
     // ---------------------------------------------
@@ -205,4 +203,29 @@ function validate(obj_input,obj_event) // Placeholder
   return 0;
 }    
 
+var evtSource;
+g_j_streamData = {}
 
+// --------------------\/ Streaming \/-------------------
+// ------------------------------------------------------
+// ------------------Open Streaming Connection ----------
+// ------------------------------------------------------
+function func_startStreamT(streamName, targetID)
+{
+    evtSource = new EventSource('http://127.0.0.1:5000/stream_status?streamName=status');
+    evtSource.addEventListener(streamName, (event) => 
+    {
+        const listElement = document.getElementById('list');
+        const newElement = document.getElementById(targetID);
+        newElement.innerText = event.data;
+        g_j_streamData = JSON.parse(event.data);
+    }
+    );
+}
+// ------------------------------------------------------
+// ------------------Close Streaming Connection ---------
+// ------------------------------------------------------
+function func_closeStream()
+{
+    evtSource.close();
+}

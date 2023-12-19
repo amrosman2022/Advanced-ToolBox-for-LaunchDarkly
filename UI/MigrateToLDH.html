@@ -245,7 +245,7 @@
                       <div height="5px" style="font-size: 3px;">&nbsp; </div> <!-- spacer-->
                       <div class="input-group input-group-lg">
                         <span class="input-group-text">Target API Key</span>
-                        <input value="" id="tfrm_api" type="text" class="form-control" placeholder="api-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx" />
+                        <input value=" REMOVE-api-b9982943-81d5-40e7-800b-e735ac06280f" id="tfrm_api" type="text" class="form-control" placeholder="api-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx" />
                       </div>
                       <div height="5px" style="font-size: 6px;">&nbsp; </div> <!-- spacer-->
                       <div class="input-group input-group-lg">
@@ -305,6 +305,16 @@
                 <p id="lbl_functioninfo" id="results_line1" class="card-text">Click the start button to start migrating data from CRDB to LaunchDarkly subscription.</p>
                 <p id="results_line2" class="card-text">
                   <!-- **************************************************************************** -->
+                  
+                  <!-- **************************************************************************** -->
+                </p>
+              </div>
+            </div>
+            <div class="card" style="width: 100%; background-color:cadetblue;" >
+              <div class="card-body">
+                  <p id="Progress_line0" class="card-text" style="color:white;">Progress...</p>
+                  <p id="Progress_line" class="card-text" style="color:white;">
+                  <!-- **************************** Status **************************************** -->
                   
                   <!-- **************************************************************************** -->
                 </p>
@@ -425,6 +435,7 @@ const getFlagCnt = async () =>
         }
       }
 
+      func_startStreamT('status','Progress_line');
       const d = new Date();
       let time = d.getTime();
       s_orig1 = document.getElementById("lbl_functionstat").innerText;
@@ -456,6 +467,7 @@ const getFlagCnt = async () =>
             document.getElementById("lbl_functioninfo").innerText = "Function executed successfuly, running for " + s_tdiff + " milliseconds...";
           }
           document.getElementById("results_line2").innerHTML = myJson['data'];
+          //func_closeStream();
       }
       catch(e){
           const myJson = e.message;
@@ -463,11 +475,32 @@ const getFlagCnt = async () =>
           document.getElementById("lbl_functionstat").innerText = s_orig1;
           document.getElementById("lbl_functioninfo").innerText = "Function execution failed @" + myJson;
           console.log(e.message);
+          //func_closeStream();
           return (e);
       }
   }
   </script>
   <script>getFlagCnt();</script>
+
+  <!--  ***************** Stream ***************** -->
+  <script>
+    var evtSource;
+    g_j_streamData = {}
+    g_o_myWindow;
+
+    function func_startStreamT(streamName, targetID)
+    {
+        
+        g_o_myWindow = window.open("showStreamH.html", "MonitorWindow", "width=300, height=300, left" + this.offsetLeft + ", top=" + this.offsetTop + ", menubar=no, scrollbars=yes,status=no, toolbar=no");
+        return true;
+    }
+    
+    function func_closeStream()
+    {
+        evtSource.close();
+    }
+    
+    </script>
 </body>
 
 </html>
