@@ -1,8 +1,8 @@
 {
-    "sourceLDSub": "api-b993fe82-d0d4-4da0-a1b9-2af1b9b05c8b",
-    "destLDSub": "api-20ef1545-fbf0-4636-bb77-1013b755f427",
-    "sourceProjID": "demo-site-2-0",
-    "destProjID": "demo-site-2-0",
-    "sourceEnvID": "aosman",
-    "destEnvID": "aosman"
+    "sourceLDSub": "",
+    "destLDSub": "",
+    "sourceProjID": "",
+    "destProjID": "",
+    "sourceEnvID": "",
+    "destEnvID": ""
 }
