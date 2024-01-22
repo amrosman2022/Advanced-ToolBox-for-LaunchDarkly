@@ -1,10 +1,12 @@
-# Advanced-ToolBox-for-LD - V3 (Previously Advanced Search)
+# Advanced-ToolBox-for-LD - V4 (Previously Advanced Search)
 
 <H2>Overview</H2><br>
 It will allow you to copy the LD data to your CRDB and then be able to search across projects, environments, and flags.<br>
 A video with the UI flow @"Adv Srch for LaunchDarkly quick overview.mp4" overview video <BR>
 <H4>V2</H4>Adds cost allocation functionality shown on the home page. Cost can be assigned by department. Adding customers and departments is done manually directly on the DB by importing the data from your records to the CRDB tables. <BR>
 <H4>V3</H4>Adds Data copy from CRDB to a new LaunchDarkly Subscription. <BR>
+<H4>V4</H4>Adds a standalone tool to copy Segments across Projects and Subscriptions. the tool is not yet integrated in the UI and run on the command-line<BR>
+Adds a way to receive realtime status "Server-Sent-Events" from the backend to the frontend while long-running transactions are running the backend.<BR>
 
 <h2> Technology</h2><br>
 Backend: built on Python 3.x<br>
